@@ -16,11 +16,11 @@ using namespace std;
 
 #include <Timer/SmartTimer.h>
 
-class CMyTimerHandler: public NSSmartUtils::ITimer
+class CMyTimerHandler: public NSSmartUtils::CBaseTimer
 {
 public:
 	CMyTimerHandler(const NSSmartUtils::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos) :
-	ITimer(timer_type, interval_seconds, interval_nanos)
+	CBaseTimer(timer_type, interval_seconds, interval_nanos)
 	{
 	}
 

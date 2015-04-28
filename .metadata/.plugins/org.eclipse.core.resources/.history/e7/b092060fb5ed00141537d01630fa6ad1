@@ -20,7 +20,7 @@ class CMyTimerHandler: public NSSmartUtils::ITimer
 {
 public:
 	CMyTimerHandler(const NSSmartUtils::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos) :
-	ITimer(timer_type, interval_seconds, interval_nanos)
+	CTimer(timer_type, interval_seconds, interval_nanos)
 	{
 	}
 

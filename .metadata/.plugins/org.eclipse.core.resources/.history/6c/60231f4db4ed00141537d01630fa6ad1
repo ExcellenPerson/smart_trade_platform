@@ -14,12 +14,12 @@
 #include <unistd.h>
 #include <iostream>
 
-namespace NSSmartUtils
+namespace ns_utils
 {
 
 const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
 
-ITimer::~ITimer()
+CBaseTimer::~CBaseTimer()
 {
 	if (-1 == m_fd)
 	{
@@ -27,7 +27,7 @@ ITimer::~ITimer()
 	}
 }
 
-int32_t ITimer::create()
+int32_t CBaseTimer::create()
 {
 	ST_ASSERT(m_init_expire_nanos < NANOS_OF_ONE_SECONDS && m_interval_nanos < NANOS_OF_ONE_SECONDS);
 
@@ -219,7 +219,7 @@ void CSmartTimers::handle_timers()
 
 			for (n = 0; n < nfds; ++n)
 			{
-				ITimer *ptimer = static_cast<ITimer*>(events[n].data.ptr);
+				CBaseTimer *ptimer = static_cast<CBaseTimer*>(events[n].data.ptr);
 				s = read(ptimer->get_fd(), &times, sizeof(uint64_t));
 				if (s != sizeof(uint64_t))
 				{
