@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;SmartUtils/timer&apos; to &apos;Timer&apos;" description="Rename resource &apos;timer&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="timer" name="Timer" stamp="1430230547319" updateReferences="true"/>
+</session>
