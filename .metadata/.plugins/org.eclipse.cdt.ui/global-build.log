@@ -1,48 +1,6 @@
-10:44:46 **** Incremental Build of configuration Debug for project STPTest ****
+10:48:37 **** Incremental Build of configuration Debug for project STPTest ****
 make all 
-Building file: ../src/STPTest.cpp
-Using built-in specs.
-COLLECT_GCC=g++
-Target: x86_64-redhat-linux
-Invoking: GCC C++ Compiler
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.9.2-20150212/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.9.2-20150212/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux
-g++ -std=c++1y -I"/home/rock/git/SmartTradePlatform/SmartUtils" -O0 -g3 -Wall -c -fmessage-length=0 -v -MMD -MP -MF"src/STPTest.d" -MT"src/STPTest.d" -o "src/STPTest.o" "../src/STPTest.cpp"
-Thread model: posix
-gcc version 4.9.2 20150212 (Red Hat 4.9.2-6) (GCC) 
-COLLECT_GCC_OPTIONS='-std=c++1y' '-I' '/home/rock/git/SmartTradePlatform/SmartUtils' '-O0' '-g3' '-Wall' '-c' '-fmessage-length=0' '-v' '-MMD' '-MP' '-MF' 'src/STPTest.d' '-MT' 'src/STPTest.d' '-o' 'src/STPTest.o' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
- /usr/libexec/gcc/x86_64-redhat-linux/4.9.2/cc1plus -quiet -v -I /home/rock/git/SmartTradePlatform/SmartUtils -MMD src/STPTest.d -MF src/STPTest.d -MP -MT src/STPTest.d -dD -D_GNU_SOURCE ../src/STPTest.cpp -quiet -dumpbase STPTest.cpp -mtune=generic -march=x86-64 -auxbase-strip src/STPTest.o -g3 -O0 -Wall -std=c++1y -version -fmessage-length=0 -o /tmp/ccujRZ9X.s
-GNU C++ (GCC) version 4.9.2 20150212 (Red Hat 4.9.2-6) (x86_64-redhat-linux)
-	compiled by GNU C version 4.9.2 20150212 (Red Hat 4.9.2-6), GMP version 6.0.0, MPFR version 3.1.2, MPC version 1.0.2
-GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
-ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/4.9.2/include-fixed"
-ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../../x86_64-redhat-linux/include"
-#include "..." search starts here:
-#include <...> search starts here:
- /home/rock/git/SmartTradePlatform/SmartUtils
- /usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../../include/c++/4.9.2
- /usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../../include/c++/4.9.2/x86_64-redhat-linux
- /usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../../include/c++/4.9.2/backward
- /usr/lib/gcc/x86_64-redhat-linux/4.9.2/include
- /usr/local/include
- /usr/include
-End of search list.
-GNU C++ (GCC) version 4.9.2 20150212 (Red Hat 4.9.2-6) (x86_64-redhat-linux)
-	compiled by GNU C version 4.9.2 20150212 (Red Hat 4.9.2-6), GMP version 6.0.0, MPFR version 3.1.2, MPC version 1.0.2
-GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
-Compiler executable checksum: 954ba53e83b294b646fa1b6b73a69682
-COLLECT_GCC_OPTIONS='-std=c++1y' '-I' '/home/rock/git/SmartTradePlatform/SmartUtils' '-O0' '-g3' '-Wall' '-c' '-fmessage-length=0' '-v' '-MMD' '-MP' '-MF' 'src/STPTest.d' '-MT' 'src/STPTest.d' '-o' 'src/STPTest.o' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
- as -v -I /home/rock/git/SmartTradePlatform/SmartUtils --64 -o src/STPTest.o /tmp/ccujRZ9X.s
-GNU assembler version 2.24 (x86_64-redhat-linux) using BFD version version 2.24
-COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.9.2/:/usr/libexec/gcc/x86_64-redhat-linux/4.9.2/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.9.2/:/usr/lib/gcc/x86_64-redhat-linux/
-LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.9.2/:/usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.9.2/../../../:/lib/:/usr/lib/
-Finished building: ../src/STPTest.cpp
-COLLECT_GCC_OPTIONS='-std=c++1y' '-I' '/home/rock/git/SmartTradePlatform/SmartUtils' '-O0' '-g3' '-Wall' '-c' '-fmessage-length=0' '-v' '-MMD' '-MP' '-MF' 'src/STPTest.d' '-MT' 'src/STPTest.d' '-o' 'src/STPTest.o' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
- 
-Building target: STPTest
-Invoking: GCC C++ Linker
-g++ -L"/home/rock/git/SmartTradePlatform/SmartUtils/Debug" -o "STPTest"  ./src/STPTest.o   -lSmartUtils
-Finished building target: STPTest
- 
-10:44:51 **** Incremental Build of configuration Debug for project STPTest ****
+make: Nothing to be done for 'all'.
+10:48:39 **** Incremental Build of configuration Debug for project STPTest ****
 make all 
 make: Nothing to be done for 'all'.

@@ -1,6 +1,6 @@
-10:44:51 **** Incremental Build of configuration Debug for project STPTest ****
+10:48:39 **** Incremental Build of configuration Debug for project STPTest ****
 make all 
 make: Nothing to be done for 'all'.
 
-10:44:51 Build Finished (took 76ms)
+10:48:40 Build Finished (took 126ms)
 
