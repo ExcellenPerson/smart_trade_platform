@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;SmartTradePlatform&apos; to &apos;SmartEngine&apos;" description="Rename resource &apos;SmartTradePlatform&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/SmartTradePlatform" name="SmartEngine" stamp="1430232470875" updateReferences="true"/>
+</session>
