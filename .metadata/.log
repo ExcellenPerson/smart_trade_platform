@@ -186,3 +186,15 @@ java.lang.UnsupportedOperationException
 
 !ENTRY org.eclipse.cdt.core 1 0 2015-04-28 10:47:51.258
 !MESSAGE Indexed 'SmartEngine' (0 sources, 0 headers) in 0 sec: 0 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2015-04-28 11:01:00.084
+!MESSAGE Indexed 'SmartHAF' (0 sources, 0 headers) in 0.001 sec: 0 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2015-04-28 11:02:23.283
+!MESSAGE Indexed 'SmartCMS' (1 sources, 102 headers) in 5.03 sec: 8,368 declarations; 14,403 references; 0 unresolved inclusions; 0 syntax errors; 2 unresolved names (0.0088%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2015-04-28 11:05:30.067
+!MESSAGE Indexed 'SmartDCP' (0 sources, 0 headers) in 0.001 sec: 0 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2015-04-28 11:06:09.497
+!MESSAGE Indexed 'SmartTradePlatformTest' (1 sources, 123 headers) in 6.02 sec: 10,864 declarations; 18,922 references; 0 unresolved inclusions; 6 syntax errors; 29 unresolved names (0.097%)
