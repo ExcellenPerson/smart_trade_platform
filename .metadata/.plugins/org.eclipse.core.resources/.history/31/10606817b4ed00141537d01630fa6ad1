@@ -14,7 +14,7 @@
 #include <iostream>
 using namespace std;
 
-#include <Timer/SmartTimer.h>
+#include <Timer/SmartTimers.h>
 
 class CMyTimerHandler: public ns_utils::CBaseTimer
 {
