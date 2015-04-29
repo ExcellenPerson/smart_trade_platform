@@ -34,8 +34,8 @@ public:
 	 * */
 	static T& GetInst()
 	{
-		static T st;
-		return st;
+		static T m_t;
+		return m_t;
 	}
 };
 
