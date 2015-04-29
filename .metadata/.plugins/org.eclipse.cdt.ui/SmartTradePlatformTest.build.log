@@ -1,6 +1,6 @@
-11:02:34 **** Incremental Build of configuration Debug for project SmartTradePlatformTest ****
+11:42:14 **** Incremental Build of configuration Debug for project SmartTradePlatformTest ****
 make all 
 make: Nothing to be done for 'all'.
 
-11:02:34 Build Finished (took 89ms)
+11:42:14 Build Finished (took 200ms)
 

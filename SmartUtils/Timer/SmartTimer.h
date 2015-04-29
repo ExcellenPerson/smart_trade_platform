@@ -41,59 +41,61 @@ class ITimer
 	DISABLE_MOVE(ITimer)
 
 protected:
-	explicit ITimer(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos) :
-			m_registered(false), m_fd(-1), m_timer_type(timer_type), m_init_expire_seconds(interval_seconds), m_init_expire_nanos(interval_nanos), m_interval_seconds(
-					interval_seconds), m_interval_nanos(interval_nanos)
+	explicit ITimer(const ETimerType timer_type, int64_t interval_seconds,
+			int64_t interval_nanos) :
+			Registered_(false), FileDescriptor_(-1), TimerType_(timer_type), InitExpireSeconds_(
+					interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(
+					interval_seconds), IntervalNanos_(interval_nanos)
 	{
 	}
 
 	virtual ~ITimer();
 
-	int32_t create();
+	int32_t Create();
 
-	bool is_registered()
+	bool IsRegistered()
 	{
-		return m_registered;
+		return Registered_;
 	}
-	void registered()
+	void Registered()
 	{
-		m_registered = true;
-	}
-
-	int32_t get_fd()
-	{
-		return m_fd;
+		Registered_ = true;
 	}
 
-	virtual void handle_timer_evt(uint64_t ui64Times) = 0;
+	int32_t GetFD()
+	{
+		return FileDescriptor_;
+	}
+
+	virtual void HandleTimerEvent(uint64_t ui64Times) = 0;
 
 public:
 
-	static inline uint32_t get_max_timers()
+	static inline uint32_t GetMaxTimers()
 	{
 		return MAX_TIMERS;
 	}
 
-	int64_t get_interval_seconds()
+	int64_t GetIntervalSeconds()
 	{
-		return m_interval_seconds;
+		return IntervalSeconds_;
 	}
 
-	int64_t get_interval_nanos()
+	int64_t GetIntervalNanos()
 	{
-		return m_interval_nanos;
+		return IntervalNanos_;
 	}
 
 private:
-	bool m_registered;
-	int32_t m_fd;
-	int32_t m_timer_type;
-	int64_t m_init_expire_seconds;
-	int64_t m_init_expire_nanos;
-	int64_t m_interval_seconds;
-	int64_t m_interval_nanos;
+	bool Registered_;
+	int32_t FileDescriptor_;
+	int32_t TimerType_;
+	int64_t InitExpireSeconds_;
+	int64_t InitExpireNanos_;
+	int64_t IntervalSeconds_;
+	int64_t IntervalNanos_;
 };
-typedef std::shared_ptr<NSSmartUtils::ITimer> timer_ptr_t;
+typedef std::shared_ptr<NSSmartUtils::ITimer> TimerPtr_t;
 
 class CSmartTimers
 {
@@ -106,22 +108,22 @@ public:
 
 public:
 
-	int32_t start();
-	int32_t stop();
+	int32_t Start();
+	int32_t Stop();
 
-	int32_t register_timer(timer_ptr_t &ptimer);
-	uint32_t get_max_timers();
+	int32_t RegisterTimer(TimerPtr_t &ptimer);
+	uint32_t GetMaxTimer();
 
-	void handle_timers();
+	void HandleTimers();
 
 private:
-	volatile bool m_stop_flag;
-	typedef std::set<timer_ptr_t> timers_set_t;
-	timers_set_t m_timers;
-	typedef std::shared_ptr<std::thread> thread_ptr_t;
-	thread_ptr_t m_pthread;
-	std::mutex m_state_lk, m_timers_lk;
-	int32_t m_epollfd;
+	volatile bool StopFlag_;
+	typedef std::set<TimerPtr_t> TimersSet_t;
+	TimersSet_t Timers_;
+	typedef std::shared_ptr<std::thread> ThreadPtr_t;
+	ThreadPtr_t pThread_;
+	std::mutex StateLock_, TimersLock_;
+	int32_t EpollFD_;
 };
 
 } /* namespace ns_utils */

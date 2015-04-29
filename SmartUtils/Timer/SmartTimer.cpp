@@ -21,24 +21,28 @@ const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
 
 ITimer::~ITimer()
 {
-	if (-1 == m_fd)
+	if (-1 == FileDescriptor_)
 	{
-		close(m_fd);
+		close(FileDescriptor_);
 	}
 }
 
-int32_t ITimer::create()
+int32_t ITimer::Create()
 {
-	ST_ASSERT(m_init_expire_nanos < NANOS_OF_ONE_SECONDS && m_interval_nanos < NANOS_OF_ONE_SECONDS);
+	ST_ASSERT(
+			InitExpireNanos_ < NANOS_OF_ONE_SECONDS
+					&& IntervalNanos_ < NANOS_OF_ONE_SECONDS);
 
-	if (ETT_REALTIME != m_timer_type && ETT_MONOTONIC != m_timer_type)
+	if (ETT_REALTIME != TimerType_ && ETT_MONOTONIC != TimerType_)
 	{
 		return EEC_ERR;
 	}
 
-	int32_t timer_type = ETT_REALTIME == m_timer_type ? CLOCK_REALTIME : CLOCK_MONOTONIC;
+	int32_t timer_type =
+			ETT_REALTIME == TimerType_ ? CLOCK_REALTIME : CLOCK_MONOTONIC;
 
-	struct timespec now = { 0 };
+	struct timespec now =
+	{ 0 };
 	int32_t flags = 0;
 #if (__ABS_TIME__)
 	if (clock_gettime(timer_type, &now) == -1)
@@ -50,18 +54,21 @@ int32_t ITimer::create()
 
 	struct itimerspec new_value =
 	{ 0 };
-	new_value.it_value.tv_sec = now.tv_sec + m_init_expire_seconds + (now.tv_nsec + m_init_expire_nanos) / NANOS_OF_ONE_SECONDS;
-	new_value.it_value.tv_nsec = (now.tv_nsec + m_init_expire_nanos) % NANOS_OF_ONE_SECONDS;
-	new_value.it_interval.tv_sec = m_interval_seconds + m_interval_nanos / NANOS_OF_ONE_SECONDS;
-	new_value.it_interval.tv_nsec = m_interval_nanos % NANOS_OF_ONE_SECONDS;
+	new_value.it_value.tv_sec = now.tv_sec + InitExpireSeconds_
+			+ (now.tv_nsec + InitExpireNanos_) / NANOS_OF_ONE_SECONDS;
+	new_value.it_value.tv_nsec = (now.tv_nsec + InitExpireNanos_)
+			% NANOS_OF_ONE_SECONDS;
+	new_value.it_interval.tv_sec = IntervalSeconds_
+			+ IntervalNanos_ / NANOS_OF_ONE_SECONDS;
+	new_value.it_interval.tv_nsec = IntervalNanos_ % NANOS_OF_ONE_SECONDS;
 
-	m_fd = timerfd_create(timer_type, 0);
-	if (m_fd == -1)
+	FileDescriptor_ = timerfd_create(timer_type, 0);
+	if (FileDescriptor_ == -1)
 	{
 		return EEC_ERR;
 	}
 
-	if (timerfd_settime(m_fd, flags, &new_value, NULL) == -1)
+	if (timerfd_settime(FileDescriptor_, flags, &new_value, NULL) == -1)
 	{
 		return EEC_ERR;
 	}
@@ -70,7 +77,7 @@ int32_t ITimer::create()
 }
 
 CSmartTimers::CSmartTimers() :
-		m_stop_flag(false), m_pthread(nullptr), m_epollfd(-1)
+		StopFlag_(false), pThread_(nullptr), EpollFD_(-1)
 {
 	// TODO Auto-generated constructor stub
 }
@@ -80,11 +87,11 @@ CSmartTimers::~CSmartTimers()
 	// TODO Auto-generated destructor stub
 }
 
-int32_t CSmartTimers::start()
+int32_t CSmartTimers::Start()
 {
-	std::lock_guard < std::mutex > lock(m_state_lk);
+	std::lock_guard < std::mutex > lock(StateLock_);
 
-	if (m_pthread != nullptr)
+	if (pThread_ != nullptr)
 	{
 		ST_ASSERT(false);
 		return EEC_ERR;
@@ -97,64 +104,64 @@ int32_t CSmartTimers::start()
 	 in  size.)  Nowadays, this hint is no longer required (the kernel dynamically sizes the required data structures without needing the hint),
 	 but size must still be greater than zero, in order to ensure backward compatibility when new epoll applications are run on older kernels.
 	 * */
-	m_epollfd = epoll_create(MAX_TIMERS);
-	if (m_epollfd == -1)
+	EpollFD_ = epoll_create(MAX_TIMERS);
+	if (EpollFD_ == -1)
 	{
 		ST_ASSERT(false);
 		return EEC_ERR;
 	}
 
-	m_pthread = std::make_shared < std::thread > ([this]
-	{	handle_timers();});
+	pThread_ = std::make_shared < std::thread > ([this]
+	{	HandleTimers();});
 
 	return EEC_SUC;
 }
 
-int32_t CSmartTimers::stop()
+int32_t CSmartTimers::Stop()
 {
-	std::lock_guard < std::mutex > lock(m_state_lk);
+	std::lock_guard < std::mutex > lock(StateLock_);
 
-	if (m_pthread == nullptr)
+	if (pThread_ == nullptr)
 	{
 		ST_ASSERT(false);
 		return EEC_ERR;
 	}
-	m_stop_flag = true;
-	m_pthread->join();
-	m_pthread = nullptr;
+	StopFlag_ = true;
+	pThread_->join();
+	pThread_ = nullptr;
 
-	m_timers.clear();
+	Timers_.clear();
 
-	close(m_epollfd);
-	m_epollfd = -1;
+	close(EpollFD_);
+	EpollFD_ = -1;
 
 	return EEC_SUC;
 }
 
-int32_t CSmartTimers::register_timer(timer_ptr_t &ptimer)
+int32_t CSmartTimers::RegisterTimer(TimerPtr_t &ptimer)
 {
-	std::lock_guard < std::mutex > lock(m_timers_lk);
+	std::lock_guard < std::mutex > lock(TimersLock_);
 
-	std::pair<timers_set_t::iterator, bool> ret = m_timers.insert(ptimer);
+	std::pair<TimersSet_t::iterator, bool> ret = Timers_.insert(ptimer);
 	if (!ret.second)
 	{
 		return EEC_ERR;
 	}
 
-	if (ptimer->create() == EEC_ERR)
+	if (ptimer->Create() == EEC_ERR)
 	{
-		m_timers.erase(ret.first);
+		Timers_.erase(ret.first);
 		return EEC_ERR;
 	}
 
 	return EEC_SUC;
 }
 
-void CSmartTimers::handle_timers()
+void CSmartTimers::HandleTimers()
 {
 	for (;;)
 	{
-		if (m_stop_flag)
+		if (StopFlag_)
 		{
 			break;
 		}
@@ -162,9 +169,10 @@ void CSmartTimers::handle_timers()
 		//std::cout<<"run: "<<std::endl;
 
 		{
-			std::lock_guard < std::mutex > lock(m_timers_lk); ///TheRock_Lhy: not suggest to register timer at runtime..
+			std::lock_guard < std::mutex > lock(TimersLock_); ///TheRock_Lhy: not suggest to register timer at runtime..
 			///modify epoll set
-			for (timers_set_t::iterator itor = m_timers.begin(); itor != m_timers.end();)
+			for (TimersSet_t::iterator itor = Timers_.begin();
+					itor != Timers_.end();)
 			{
 				//std::cout << "count: " << (*itor).use_count() << std::endl;
 
@@ -172,27 +180,29 @@ void CSmartTimers::handle_timers()
 				{
 					//TheRock_Lhy: i confirm not to assign it to others:).
 					///unregister it now.
-					if (epoll_ctl(m_epollfd, EPOLL_CTL_DEL, (*itor)->get_fd(), NULL) == -1)
+					if (epoll_ctl(EpollFD_, EPOLL_CTL_DEL, (*itor)->GetFD(),
+							NULL) == -1)
 					{
 						ST_ASSERT(false);
 					}
 
-					m_timers.erase(itor++);
+					Timers_.erase(itor++);
 
 				}
-				else if (!(*itor)->is_registered())
+				else if (!(*itor)->IsRegistered())
 				{
 					///register it
 					struct epoll_event ev =
 					{ 0 };
 					ev.events = EPOLLIN;
 					ev.data.ptr = (*itor).get();
-					if (epoll_ctl(m_epollfd, EPOLL_CTL_ADD, (*itor)->get_fd(), &ev) == -1)
+					if (epoll_ctl(EpollFD_, EPOLL_CTL_ADD, (*itor)->GetFD(),
+							&ev) == -1)
 					{
 						ST_ASSERT(false);
 					}
 
-					(*itor)->registered();
+					(*itor)->Registered();
 					itor++;
 				}
 				else
@@ -210,7 +220,7 @@ void CSmartTimers::handle_timers()
 		ssize_t s = 0;
 		for (;;)
 		{
-			nfds = epoll_wait(m_epollfd, events, MAX_TIMERS, timeout);
+			nfds = epoll_wait(EpollFD_, events, MAX_TIMERS, timeout);
 			if (nfds == -1)
 			{
 				ST_ASSERT(false);
@@ -220,13 +230,13 @@ void CSmartTimers::handle_timers()
 			for (n = 0; n < nfds; ++n)
 			{
 				ITimer *ptimer = static_cast<ITimer*>(events[n].data.ptr);
-				s = read(ptimer->get_fd(), &times, sizeof(uint64_t));
+				s = read(ptimer->GetFD(), &times, sizeof(uint64_t));
 				if (s != sizeof(uint64_t))
 				{
 					ST_ASSERT(false);
 					return;
 				}
-				ptimer->handle_timer_evt(times);
+				ptimer->HandleTimerEvent(times);
 			}
 
 			break;
