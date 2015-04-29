@@ -14,20 +14,7 @@
 #include <set>
 #include <atomic>
 #include <mutex>
-
-#ifdef NDEBUG
-#define ST_ASSERT(expr) assert(expr) ///to do ...
-#else
-#define ST_ASSERT(expr) assert(expr)
-#endif
-
-#define DISABLE_COPY(class_name) \
-	class_name ( class_name &) = delete; \
-	class_name & operator= (class_name & ) = delete;
-
-#define DISABLE_MOVE(class_name) \
-	class_name ( class_name && ) = delete; \
-	class_name & operator= ( class_name && ) = delete;
+#include "../Common/Defines.h"
 
 #define MAX_TIMERS (1024)
 

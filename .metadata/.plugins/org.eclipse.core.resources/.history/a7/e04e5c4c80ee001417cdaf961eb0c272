@@ -1,0 +1,30 @@
+//============================================================================
+// Name        : Platform.h
+// Author      : TheRockLiuHY
+// Date        : Apr 29, 2015
+// Copyright   : liuhongyang's copyright
+// Description : SmartUtils
+//============================================================================
+
+#ifndef COMMON_PLATFORM_H_
+#define COMMON_PLATFORM_H_
+
+namespace NSSmartUtils
+{
+
+class CPlatform
+{
+};
+
+} /* namespace NSSmartUtils */
+
+namespace NSSmartUtils
+{
+
+class Platform
+{
+};
+
+} /* namespace NSSmartUtils */
+#endif /* COMMON_PLATFORM_H_ */
+

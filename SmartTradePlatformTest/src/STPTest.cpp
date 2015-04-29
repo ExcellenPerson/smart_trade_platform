@@ -15,6 +15,7 @@
 using namespace std;
 
 #include <Timer/SmartTimer.h>
+#include <Utils/Singleton.h>
 
 class CMyTimerHandler: public NSSmartUtils::ITimer
 {

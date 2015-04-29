@@ -1,4 +1,6 @@
 eclipse.preferences.version=1
+formatter_profile=org.eclipse.cdt.ui.default.allman_profile
+formatter_settings_version=1
 org.eclipse.cdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates><template autoinsert\="false" context\="org.eclipse.cdt.ui.text.codetemplates.filecomment_context" deleted\="false" description\="Comment for created C/C++ files" enabled\="true" id\="org.eclipse.cdt.ui.text.codetemplates.filecomment" name\="filecomment">//\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\n// Name        \: ${file_name}\n// Author      \: TheRockLiuHY\n// Date        \: ${date}\n// Copyright   \: liuhongyang's copyright\n// Description \: ${project_name}\n//\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\n</template></templates>
 sourceHoverBackgroundColor=249,249,249
 spelling_locale_initialized=true
