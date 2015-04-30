@@ -36,6 +36,10 @@ public:
 
 int main()
 {
+	NSSmartUtils::CSingleton<int>::GetInst() = 1;
+	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
+
+
 	NSSmartUtils::TimerPtr_t ptr = std::make_shared < CMyTimerHandler
 			> (NSSmartUtils::ETimerType::ETT_REALTIME, 1, 1);
 

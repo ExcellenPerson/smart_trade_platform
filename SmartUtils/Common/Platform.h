@@ -10,7 +10,7 @@
 #define COMMON_PLATFORM_H_
 
 #if (__cplusplus <= 199711L)
-#error TheRockLHY says this singleton implementation needs C++11!
+#define __SUPPORT_CPP_11__ (0)
 #else
 #define __SUPPORT_CPP_11__ (1)
 #endif
