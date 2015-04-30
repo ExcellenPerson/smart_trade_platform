@@ -1,7 +1,0 @@
-1430232470875	Rename resource 'SmartTradePlatform'
-1430233561653	Rename resource 'STPTest'
-1430317307361	Delete resource 'SmartUtils/Utils/CSingleton.cpp'
-1430318229876	Delete resource 'SmartUtils/Utils/CBase.cpp'
-1430319507575	Delete resource 'SmartUtils/Common/Platform.cpp'
-1430321366462	Delete resource 'SmartUtils/Debug/libSmartUtils.so'
-1430322074527	Delete resource 'SmartTradePlatformTest/Debug/STPTest'

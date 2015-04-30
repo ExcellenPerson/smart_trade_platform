@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;SmartNet/ReliableMulticast&apos; to &apos;RMP&apos;" description="Rename resource &apos;ReliableMulticast&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="ReliableMulticast" name="RMP" stamp="1430231677252" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;SmartNet/ReliableUnicast&apos; to &apos;RUP&apos;" description="Rename resource &apos;ReliableUnicast&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="ReliableUnicast" name="RUP" stamp="1430231687465" updateReferences="true"/>
-</session>
