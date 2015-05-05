@@ -5,7 +5,7 @@
  *      Author: rock
  */
 
-#include "RCP.h"
+#include "../ReliableProtocal/ReliableProtocal.h"
 
 namespace NSSmartNet {
 
