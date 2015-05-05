@@ -1,21 +1,38 @@
-/*
- * CRCP.h
- *
- *  Created on: May 5, 2015
- *      Author: rock
- */
+//============================================================================
+// Name        : ReliableProtocal.h
+// Author      : TheRockLiuHY
+// Date        : May 5, 2015
+// Copyright   : liuhongyang's copyright
+// Description : SmartNet
+//============================================================================
 
-#ifndef CRCP_H_
-#define CRCP_H_
+#ifndef RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_
+#define RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_
 
-namespace NSSmartNet {
+#include <Common/Defines.h>
 
-class CRCP {
+namespace NSSmartNet
+{
+
+class CUdpWrapper
+{
 public:
-	CRCP();
-	virtual ~CRCP();
+	CUdpWrapper(){}
+	~CUdpWrapper(){}
+
+
+};
+
+/*
+ *
+ */
+class CReliableProtocal
+{
+public:
+	CReliableProtocal();
+	virtual ~CReliableProtocal();
 };
 
 } /* namespace NSSmartNet */
 
-#endif /* CRCP_H_ */
+#endif /* RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_ */

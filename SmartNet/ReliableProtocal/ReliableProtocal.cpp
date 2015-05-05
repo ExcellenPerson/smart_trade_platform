@@ -1,20 +1,24 @@
-/*
- * CRCP.cpp
- *
- *  Created on: May 5, 2015
- *      Author: rock
- */
+//============================================================================
+// Name        : ReliableProtocal.cpp
+// Author      : TheRockLiuHY
+// Date        : May 5, 2015
+// Copyright   : liuhongyang's copyright
+// Description : SmartNet
+//============================================================================
 
-#include "../ReliableProtocal/ReliableProtocal.h"
+#include "ReliableProtocal.h"
 
-namespace NSSmartNet {
+namespace NSSmartNet
+{
 
-CRCP::CRCP() {
+CReliableProtocal::CReliableProtocal()
+{
 	// TODO Auto-generated constructor stub
 
 }
 
-CRCP::~CRCP() {
+CReliableProtocal::~CReliableProtocal()
+{
 	// TODO Auto-generated destructor stub
 }
 
