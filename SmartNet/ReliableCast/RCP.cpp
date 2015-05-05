@@ -1,20 +1,20 @@
 /*
- * RMPEndpoint.cpp
+ * CRCP.cpp
  *
- *  Created on: Apr 28, 2015
+ *  Created on: May 5, 2015
  *      Author: rock
  */
 
-#include "RMPEndpoint.h"
+#include "RCP.h"
 
 namespace NSSmartNet {
 
-CRMPEndpoint::CRMPEndpoint() {
+CRCP::CRCP() {
 	// TODO Auto-generated constructor stub
 
 }
 
-CRMPEndpoint::~CRMPEndpoint() {
+CRCP::~CRCP() {
 	// TODO Auto-generated destructor stub
 }
 
