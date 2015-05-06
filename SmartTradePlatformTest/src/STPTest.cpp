@@ -36,7 +36,7 @@ public:
 
 int main()
 {
-	NSSmartUtils::CSingleton<int>::GetInst() = 1;
+	NSSmartUtils::CSingleton<int>::GetInst() = 12345;
 	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
 
 
