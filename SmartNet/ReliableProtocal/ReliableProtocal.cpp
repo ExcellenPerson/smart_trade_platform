@@ -11,13 +11,13 @@
 namespace NSSmartNet
 {
 
-CReliableProtocal::CReliableProtocal()
+CReliableNetEndpoint::CReliableNetEndpoint(ECastType ect, EEPType eept)
 {
 	// TODO Auto-generated constructor stub
 
 }
 
-CReliableProtocal::~CReliableProtocal()
+CReliableNetEndpoint::~CReliableNetEndpoint()
 {
 	// TODO Auto-generated destructor stub
 }

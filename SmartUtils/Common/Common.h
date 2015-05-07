@@ -6,8 +6,8 @@
 // Description : SmartUtils
 //============================================================================
 
-#ifndef COMMON_PLATFORM_H_
-#define COMMON_PLATFORM_H_
+#ifndef COMMON_COMMON_H_
+#define COMMON_COMMON_H_
 
 #if (__cplusplus <= 199711L)
 #define __SUPPORT_CPP_11__ (0)
@@ -15,6 +15,11 @@
 #define __SUPPORT_CPP_11__ (1)
 #endif
 
+///common header files...
+#include <cstdint>
 
-#endif /* COMMON_PLATFORM_H_ */
+#include "Defines.h"
+#include "types.h"
+
+#endif /* COMMON_COMMON_H_ */
 
