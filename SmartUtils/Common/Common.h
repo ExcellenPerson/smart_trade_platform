@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #include "Defines.h"
-#include "types.h"
+#include "Types.h"
 
 #endif /* COMMON_COMMON_H_ */
 
