@@ -48,6 +48,7 @@ public:
 public:
 	CReliableNetEndpoint(ECastType ect, EEPType eept);
 	~CReliableNetEndpoint();
+
 public:
 	int32_t SetData(bptr_t pData, uint32_t DataBytes);
 	bptr_t  GetData();
