@@ -15,13 +15,12 @@ namespace NSSmartNet
 {
 
 /*
- * support reliable unicast, multicast and broadcast
+ * support unreliable/reliable unicast, multicast and broadcast
  */
-template <typename DATA_REF>
-class CReliableNetEndpoint
+class CNetEndpoint
 {
-	DISABLE_COPY(CReliableNetEndpoint)
-	DISABLE_MOVE(CReliableNetEndpoint)
+	DISABLE_COPY(CNetEndpoint)
+	DISABLE_MOVE(CNetEndpoint)
 
 public:
 	enum ECastType
@@ -34,13 +33,18 @@ public:
 		EEPT_NONE = -1, EEPT_SENDER = 0, EEPT_RECVER = 1
 	};
 
+	enum EReliableOrNot
+	{
+		ERON_NONE = -1, ERON_RELIABLE = 0, ERON_NO_RELIABLE = 1
+	};
+
 public:
-	CReliableNetEndpoint(ECastType ect, EEPType eept);
-	~CReliableNetEndpoint();
+	CNetEndpoint(ECastType ect, EEPType eept, EReliableOrNot eron);
+	~CNetEndpoint();
 
 public:
 	int32_t SetData(DATA_REF &dr);
-	bptr_t  GetData();
+	bptr_t GetData();
 
 private:
 	NSSmartUtils::RingBufPtr_t pInternalSendRB_;
@@ -50,27 +54,5 @@ private:
 ;
 
 } /* namespace NSSmartNet */
-
-template<typename DATA_REF, typename MEM_POOL>
-inline NSSmartNet::CReliableNetEndpoint<DATA_REF, MEM_POOL>::CReliableNetEndpoint(
-		ECastType ect, EEPType eept)
-{
-}
-
-template<typename DATA_REF, typename MEM_POOL>
-inline NSSmartNet::CReliableNetEndpoint<DATA_REF, MEM_POOL>::~CReliableNetEndpoint()
-{
-}
-
-template<typename DATA_REF, typename MEM_POOL>
-inline int32_t NSSmartNet::CReliableNetEndpoint<DATA_REF, MEM_POOL>::SetData(
-		DATA_REF& dr)
-{
-}
-
-template<typename DATA_REF, typename MEM_POOL>
-inline bptr_t NSSmartNet::CReliableNetEndpoint<DATA_REF, MEM_POOL>::GetData()
-{
-}
 
 #endif /* RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_ */
