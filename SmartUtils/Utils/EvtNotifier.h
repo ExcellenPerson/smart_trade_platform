@@ -41,19 +41,23 @@ class CNetHandler
 
 };
 
-class CEvtNotifierEngine
+class CEventNotifierEngine
 {
 public:
-	CEvtNotifierEngine();
-	virtual ~CEvtNotifierEngine();
+	CEventNotifierEngine();
+	virtual ~CEventNotifierEngine();
 
 public:
 	int32_t AddEvent(EventHandlerPtr_t &pEvtHandler);
 	int32_t RemoveEvent(EventHandlerPtr_t &pEvtHandler);
 
-	void HandleOnce();
+	inline void CheckOnce();
 };
 
 } /* namespace NSSmartUtils */
+
+inline void NSSmartUtils::CEventNotifierEngine::CheckOnce()
+{
+}
 
 #endif /* UTILS_EVTNOTIFIER_H_ */
