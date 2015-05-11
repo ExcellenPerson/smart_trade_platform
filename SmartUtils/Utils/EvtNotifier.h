@@ -48,10 +48,13 @@ public:
 	virtual ~CEventNotifierEngine();
 
 public:
-	int32_t AddEvent(EventHandlerPtr_t &pEvtHandler);
-	int32_t RemoveEvent(EventHandlerPtr_t &pEvtHandler);
+	int32_t AsyncAddEvent(EventHandlerPtr_t &pEvtHandler);
+	int32_t AsyncRemoveEvent(EventHandlerPtr_t &pEvtHandler);
 
 	inline void CheckOnce();
+
+private:
+	std::
 };
 
 } /* namespace NSSmartUtils */
