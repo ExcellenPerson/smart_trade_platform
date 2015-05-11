@@ -9,6 +9,10 @@
 #ifndef COMMON_COMMON_H_
 #define COMMON_COMMON_H_
 
+#if !defined(__linux__) || !defined(__GNUC__) || (__GNUC__ < 4)
+#error only support linux and using gnu compiler 4.x...
+#endif
+
 #if (__cplusplus <= 199711L)
 #define __SUPPORT_CPP_11__ (0)
 #else
