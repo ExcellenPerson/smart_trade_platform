@@ -1,9 +1,11 @@
-/*
- * EvtNotifier.h
- *
- *  Created on: May 11, 2015
- *      Author: rock
- */
+//============================================================================
+// Name        : EventNotifier.h
+// Author      : TheRockLiuHY
+// Date        : Apr 29, 2015
+// Copyright   : liuhongyang's copyright
+// Description : SmartUtils
+//============================================================================
+
 
 #ifndef UTILS_EVENTNOTIFIER_H_
 #define UTILS_EVENTNOTIFIER_H_

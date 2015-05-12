@@ -1,9 +1,11 @@
-/*
- * IEvtNotifier.cpp
- *
- *  Created on: May 11, 2015
- *      Author: rock
- */
+//============================================================================
+// Name        : EventNotifier.cpp
+// Author      : TheRockLiuHY
+// Date        : Apr 29, 2015
+// Copyright   : liuhongyang's copyright
+// Description : SmartUtils
+//============================================================================
+
 
 #include <sys/epoll.h>
 #include <unistd.h>
