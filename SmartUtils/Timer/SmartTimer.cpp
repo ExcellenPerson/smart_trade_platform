@@ -29,7 +29,7 @@ ITimer::~ITimer()
 
 int32_t ITimer::Create()
 {
-	ST_ASSERT(
+	SU_ASSERT(
 			InitExpireNanos_ < NANOS_OF_ONE_SECONDS
 					&& IntervalNanos_ < NANOS_OF_ONE_SECONDS);
 
@@ -93,7 +93,7 @@ int32_t CSmartTimers::Start()
 
 	if (pThread_ != nullptr)
 	{
-		ST_ASSERT(false);
+		SU_ASSERT(false);
 		return EEC_ERR;
 	}
 
@@ -107,7 +107,7 @@ int32_t CSmartTimers::Start()
 	EpollFD_ = epoll_create(MAX_TIMERS);
 	if (EpollFD_ == -1)
 	{
-		ST_ASSERT(false);
+		SU_ASSERT(false);
 		return EEC_ERR;
 	}
 
@@ -123,7 +123,7 @@ int32_t CSmartTimers::Stop()
 
 	if (pThread_ == nullptr)
 	{
-		ST_ASSERT(false);
+		SU_ASSERT(false);
 		return EEC_ERR;
 	}
 	StopFlag_ = true;
@@ -183,7 +183,7 @@ void CSmartTimers::HandleTimers()
 					if (epoll_ctl(EpollFD_, EPOLL_CTL_DEL, (*itor)->GetFD(),
 							NULL) == -1)
 					{
-						ST_ASSERT(false);
+						SU_ASSERT(false);
 					}
 
 					Timers_.erase(itor++);
@@ -199,7 +199,7 @@ void CSmartTimers::HandleTimers()
 					if (epoll_ctl(EpollFD_, EPOLL_CTL_ADD, (*itor)->GetFD(),
 							&ev) == -1)
 					{
-						ST_ASSERT(false);
+						SU_ASSERT(false);
 					}
 
 					(*itor)->Registered();
@@ -223,7 +223,7 @@ void CSmartTimers::HandleTimers()
 			nfds = epoll_wait(EpollFD_, events, MAX_TIMERS, timeout);
 			if (nfds == -1)
 			{
-				ST_ASSERT(false);
+				SU_ASSERT(false);
 				break;
 			}
 
@@ -233,7 +233,7 @@ void CSmartTimers::HandleTimers()
 				s = read(ptimer->GetFD(), &times, sizeof(uint64_t));
 				if (s != sizeof(uint64_t))
 				{
-					ST_ASSERT(false);
+					SU_ASSERT(false);
 					return;
 				}
 				ptimer->HandleTimerEvent(times);

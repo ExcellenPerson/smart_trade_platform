@@ -12,9 +12,9 @@
 #include <cassert> ///for c++ assert
 
 #ifdef NDEBUG
-#define ST_ASSERT(expr) assert(expr) ///to do ...
+#define SU_ASSERT(expr) assert(expr); ///to do ...
 #else
-#define ST_ASSERT(expr) assert(expr)
+#define SU_ASSERT(expr) assert(expr);
 #endif
 
 #define DISABLE_CONSTRUCT_AND_DESTRUCT(class_name) \
