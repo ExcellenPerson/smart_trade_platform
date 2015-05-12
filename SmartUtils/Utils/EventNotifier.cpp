@@ -6,7 +6,6 @@
 // Description : SmartUtils
 //============================================================================
 
-
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <sys/timerfd.h>
@@ -118,6 +117,13 @@ namespace NSSmartUtils
 	}
 
 	const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
+
+	CTimerEventHandler::CTimerEventHandler(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+			: fd_(-1), TimerType_(timer_type), InitExpireSeconds_(interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(interval_seconds), IntervalNanos_(
+					interval_nanos)
+	{
+
+	}
 
 	CTimerEventHandler::~CTimerEventHandler()
 	{

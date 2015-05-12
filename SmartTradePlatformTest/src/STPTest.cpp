@@ -31,6 +31,17 @@ public:
 	}
 
 public:
+
+	void OnAdded(bool b)
+	{
+		cout<<"added: " <<b<<endl;
+	}
+
+	void OnRemoved(bool b)
+	{
+		cout<<"removed: " <<b<<endl;
+	}
+
 	void HandleTimer(uint64_t ui64Times)
 	{
 		cout << "interval: " << GetIntervalSeconds() << ", times: " << ui64Times << endl;
@@ -88,6 +99,8 @@ int main()
 	tms.AsyncAddEvent(p);
 
 	std::this_thread::sleep_for(20s);
+
+	tms.AsyncRemoveEvent(p);
 
 	//ptr1 = nullptr;
 

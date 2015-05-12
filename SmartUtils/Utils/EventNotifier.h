@@ -39,7 +39,6 @@ namespace NSSmartUtils
 	 * */
 	class CTimerEventHandler: public IEventHandler
 	{
-
 		DISABLE_COPY(CTimerEventHandler)
 		DISABLE_MOVE(CTimerEventHandler)
 
@@ -50,32 +49,15 @@ namespace NSSmartUtils
 		};
 
 	public:
-		explicit CTimerEventHandler(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
-				: Registered_(false), fd_(-1), TimerType_(timer_type), InitExpireSeconds_(interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(interval_seconds), IntervalNanos_(
-						interval_nanos)
-		{
-		}
-
+		explicit CTimerEventHandler(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos);
 		virtual ~CTimerEventHandler();
 
 		int32_t Open();
 		int32_t Close();
-
-		virtual void OnAdded(bool Suc){Registered_ = Suc;}
-		virtual void OnRemoved(bool Suc){Registered_ = false;}
-		virtual uint32_t GetEvents();
-		virtual void HandleEvents(uint32_t evts);
+		uint32_t GetEvents();
+		void HandleEvents(uint32_t evts);
+		int32_t GetFD() {return fd_;}
 		virtual void HandleTimer(uint64_t times) = 0;
-
-		bool IsRegistered()
-		{
-			return Registered_;
-		}
-
-		int32_t GetFD()
-		{
-			return fd_;
-		}
 
 	public:
 		int64_t GetIntervalSeconds()
@@ -89,7 +71,6 @@ namespace NSSmartUtils
 		}
 
 	private:
-		bool Registered_;
 		int32_t fd_;
 		int32_t TimerType_;
 		int64_t InitExpireSeconds_;
