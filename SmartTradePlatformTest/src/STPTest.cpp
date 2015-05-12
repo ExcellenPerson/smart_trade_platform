@@ -11,44 +11,57 @@
 #if (__TEST_TIMER__)
 
 #include <iostream>
+#include <utility>
+#include <thread>
+#include <chrono>
+#include <functional>
+#include <atomic>
+#include <memory>
 using namespace std;
 
-#include <Timer/SmartTimer.h>
+#include <Utils/EventNotifier.h>
 #include <Utils/Singleton.h>
 
-class CMyTimerHandler: public NSSmartUtils::ITimer
+class CMyTimerHandler: public NSSmartUtils::CTimerEventHandler
 {
 public:
-	CMyTimerHandler(const NSSmartUtils::ETimerType timer_type,
-			int64_t interval_seconds, int64_t interval_nanos) :
-			ITimer(timer_type, interval_seconds, interval_nanos)
+	CMyTimerHandler(const NSSmartUtils::CTimerEventHandler::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+			: CTimerEventHandler(timer_type, interval_seconds, interval_nanos)
 	{
 	}
 
 public:
-	void HandleTimerEvent(uint64_t ui64Times)
+	void HandleTimer(uint64_t ui64Times)
 	{
-		cout << "interval: " << GetIntervalSeconds() << ", times: " << ui64Times
-				<< endl;
+		cout << "interval: " << GetIntervalSeconds() << ", times: " << ui64Times << endl;
 	}
 
 };
+
+NSSmartUtils::CEventEngine tms;
+
+void f()
+{
+	for (;;)
+	{
+		tms.CheckOnce(1);
+	}
+}
 
 int main()
 {
 	NSSmartUtils::CSingleton<int>::GetInst() = 12345;
 	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
 
+	std::shared_ptr<NSSmartUtils::CTimerEventHandler> ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_REALTIME, 1, 1);
 
-	NSSmartUtils::TimerPtr_t ptr = std::make_shared < CMyTimerHandler
-			> (NSSmartUtils::ETimerType::ETT_REALTIME, 1, 1);
+	ptr->Open();
+	tms.Open();
 
-	NSSmartUtils::CSmartTimers tms;
-	tms.Start();
+	NSSmartUtils::EventHandlerPtr_t p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	tms.AsyncAddEvent(p);
 
-	//cout << "sss: " << ptr.use_count() << endl; // prints !!!Hello World!!!
-	tms.RegisterTimer(ptr);
-	//cout << "sss: " << ptr.use_count() << endl; // prints !!!Hello World!!!
+	std::thread t(f);
 
 	std::this_thread::sleep_for(10s);
 
@@ -58,29 +71,33 @@ int main()
 
 	std::this_thread::sleep_for(10s);
 
-	ptr = std::make_shared < CMyTimerHandler
-			> (NSSmartUtils::ETimerType::ETT_MONOTONIC, 2, 1);
-	tms.RegisterTimer(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_MONOTONIC, 2, 1);
 
-	NSSmartUtils::TimerPtr_t ptr1 = std::make_shared < CMyTimerHandler
-			> (NSSmartUtils::ETimerType::ETT_REALTIME, 3, 1);
-	tms.RegisterTimer(ptr1);
+	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	ptr->Open();
+	tms.AsyncAddEvent(p);
 
-	NSSmartUtils::TimerPtr_t ptr2 = std::make_shared < CMyTimerHandler
-			> (NSSmartUtils::ETimerType::ETT_MONOTONIC, 5, 1);
-	tms.RegisterTimer(ptr2);
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_REALTIME, 3, 1);
+	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	ptr->Open();
+	tms.AsyncAddEvent(p);
 
-	std::this_thread::sleep_for(20s);
-
-	ptr1 = nullptr;
-
-	std::this_thread::sleep_for(20s);
-
-	ptr2 = nullptr;
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_MONOTONIC, 5, 1);
+	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	ptr->Open();
+	tms.AsyncAddEvent(p);
 
 	std::this_thread::sleep_for(20s);
 
-	tms.Stop();
+	//ptr1 = nullptr;
+
+	std::this_thread::sleep_for(20s);
+
+	//ptr2 = nullptr;
+
+	std::this_thread::sleep_for(20s);
+
+	//tms.Stop();
 
 	cout << "!!!test over!!!" << endl; // prints !!!Hello World!!!
 	return 0;

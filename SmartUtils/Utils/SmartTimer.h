@@ -8,6 +8,8 @@
 #ifndef SMARTTIMERS_H_
 #define SMARTTIMERS_H_
 
+#if 0
+
 #include <cstdint>
 #include <memory>
 #include <thread>
@@ -128,4 +130,5 @@ private:
 
 } /* namespace ns_utils */
 
+#endif
 #endif /* SMARTTIMERS_H_ */

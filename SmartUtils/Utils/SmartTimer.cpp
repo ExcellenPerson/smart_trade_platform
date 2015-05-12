@@ -7,6 +7,7 @@
 
 #include "SmartTimer.h"
 
+#if 0
 #include <utility>
 #include <sys/timerfd.h>
 #include <cassert>
@@ -246,4 +247,4 @@ void CSmartTimers::HandleTimers()
 }
 
 } /* namespace ns_utils */
-
+#endif

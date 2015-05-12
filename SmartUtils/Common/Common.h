@@ -25,5 +25,13 @@
 #include "Defines.h"
 #include "Types.h"
 
+namespace NSSmartUtils
+{
+	enum EErrCode
+	{
+		EEC_SUC = 0, EEC_ERR = -1, EEC_REDO_ERR = -2
+	};
+
+}
 #endif /* COMMON_COMMON_H_ */
 
