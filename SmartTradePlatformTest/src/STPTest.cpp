@@ -11,12 +11,7 @@
 #if (__TEST_TIMER__)
 
 #include <iostream>
-#include <utility>
 #include <thread>
-#include <chrono>
-#include <functional>
-#include <atomic>
-#include <memory>
 using namespace std;
 
 #include <Utils/EventNotifier.h>
