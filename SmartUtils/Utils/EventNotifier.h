@@ -14,7 +14,8 @@
 #include <unordered_set>
 #include <vector>
 #include <mutex>
-#include "../Common/Common.h"
+
+#include "../Base/Base.h"
 
 namespace NSSmartUtils
 {

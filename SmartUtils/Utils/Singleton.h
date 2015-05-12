@@ -9,8 +9,7 @@
 #ifndef UTILS_SINGLETON_H_
 #define UTILS_SINGLETON_H_
 
-#include "../Common/Common.h"
-#include "../Common/Defines.h"
+#include "../Base/Base.h"
 
 #if (!__SUPPORT_CPP_11__)
 #error TheRockLHY says this singleton implementation needs C++11!
