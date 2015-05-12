@@ -11,19 +11,19 @@
 namespace NSSmartUtils
 {
 
-	NSSmartUtils::IEventHandler::IEventHandler()
+	IEventHandler::IEventHandler()
 	{
 	}
 
-	NSSmartUtils::IEventHandler::~IEventHandler()
+	IEventHandler::~IEventHandler()
 	{
 	}
 
-	NSSmartUtils::CEventEngine::CEventEngine()
+	CEventEngine::CEventEngine()
 	{
 	}
 
-	NSSmartUtils::CEventEngine::~CEventEngine()
+	CEventEngine::~CEventEngine()
 	{
 	}
 
