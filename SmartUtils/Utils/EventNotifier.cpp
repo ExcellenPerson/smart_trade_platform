@@ -6,7 +6,6 @@
  */
 
 #include <sys/epoll.h>
-
 #include "EventNotifier.h"
 
 namespace NSSmartUtils
@@ -40,10 +39,8 @@ namespace NSSmartUtils
 		TmpRemoveEventHandlersVec_.push_back(pEvtHandler);
 	}
 
-#define INIT_VEC_CNT (100)
 	inline void CEventEngine::CheckOnce()
 	{
-
 
 		if (!TmpRemoveEventHandlersVec_.empty())
 		{
@@ -62,10 +59,10 @@ namespace NSSmartUtils
 				///should specify a non-null pointer in event.
 				EventHandlersSet_t::size_type st = EventHandlersSet_.erase(*iter);
 				SU_ASSERT(1 == st)
-				(*iter)->OnRemoved(0 == st ? false : (epoll_ctl(epfd_, EPOLL_CTL_DEL, (*iter)->GetFD(), NULL) == 0));
+				(*iter)->OnRemoved(0 == st ? false : (epoll_ctl(epfd_, EPOLL_CTL_DEL, (*iter)->GetFD(),
+				NULL) == 0));
 			}
 		}
-
 
 		if (!TmpAddEventHandlersVec_.empty())
 		{
@@ -81,18 +78,32 @@ namespace NSSmartUtils
 			{
 				std::pair<EventHandlersSet_t::iterator, bool> ret = EventHandlersSet_.insert(*iter);
 				SU_ASSERT(ret.second)
-				struct epoll_event evt = {.events = (*iter)->GetEvents(), {.ptr = static_cast<void*>((*iter).get())}};
-				(*iter)->OnAdded((!ret.second) ? false : (epoll_ctl(epfd_, EPOLL_CTL_ADD, (*iter)->GetFD(), &evt) == 0));//you see, i wanna you get the errno:)...
+				struct epoll_event evt =
+				{ (*iter)->GetEvents(),
+				{ (*iter).get() }, };
+				(*iter)->OnAdded((!ret.second) ? false : (epoll_ctl(epfd_, EPOLL_CTL_ADD, (*iter)->GetFD(), &evt) == 0));	//you see, i wanna you get the errno:)...
 			}
 		}
 
-		///
-		for (;;)
-		{
+#define MAX_EVENTS (100)
+		struct epoll_event events[MAX_EVENTS];
 
+		int32_t nfds = epoll_wait(epfd_, events, MAX_EVENTS, -1);
+		if (nfds == -1)
+		{
+			SU_ASSERT(false)
+			return;
+		}
+
+		for (int32_t n = 0; n < nfds; ++n)
+		{
+			IEventHandler* pHandler = static_cast<IEventHandler*>(events[n].data.ptr);
+			SU_ASSERT(NULL != pHandler)
+			pHandler->HandleEvents(events[n].events);
 		}
 
 	}
 
-} /* namespace NSSmartUtils */
+}
+/* namespace NSSmartUtils */
 

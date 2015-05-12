@@ -30,6 +30,7 @@ public:
 	virtual void OnCanWrite() = 0;
 	virtual int32_t GetFD() = 0;
 	virtual int32_t GetEvents() = 0;
+	virtual void HandleEvents(int32_t evts) = 0;
 };
 typedef std::shared_ptr<NSSmartUtils::IEventHandler> EventHandlerPtr_t;
 
