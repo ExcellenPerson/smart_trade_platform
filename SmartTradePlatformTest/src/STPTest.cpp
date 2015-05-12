@@ -17,11 +17,33 @@ using namespace std;
 #include <Utils/EventNotifier.h>
 #include <Utils/Singleton.h>
 
-class CMyTimerHandler: public NSSmartUtils::CTimerEventHandler
+class CMyEvent: public NSSmartUtils::CEventBase
 {
 public:
-	CMyTimerHandler(const NSSmartUtils::CTimerEventHandler::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
-			: CTimerEventHandler(timer_type, interval_seconds, interval_nanos)
+	void OnAdded(bool b)
+	{
+		cout << "add event: " << b << endl;
+	}
+
+	void OnRemoved(bool b)
+	{
+		cout << "removed: " << b << endl;
+	}
+
+	void HandleEvent(uint64_t val)
+	{
+		cout << "event: " << val << endl;
+	}
+
+};
+
+std::shared_ptr<CMyEvent> ptr11;
+
+class CMyTimerHandler: public NSSmartUtils::CTimerBase
+{
+public:
+	CMyTimerHandler(const NSSmartUtils::CTimerBase::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+			: CTimerBase(timer_type, interval_seconds, interval_nanos)
 	{
 	}
 
@@ -29,22 +51,26 @@ public:
 
 	void OnAdded(bool b)
 	{
-		cout<<"added: " <<b<<endl;
+		cout << "added: " << b << endl;
 	}
 
 	void OnRemoved(bool b)
 	{
-		cout<<"removed: " <<b<<endl;
+		cout << "removed: " << b << endl;
 	}
 
-	void HandleTimer(uint64_t ui64Times)
+	void HandleTimeout(uint64_t ui64Times)
 	{
+		if (ptr11 != nullptr)
+		{
+			ptr11->Notify(ui64Times);
+		}
 		cout << "interval: " << GetIntervalSeconds() << ", times: " << ui64Times << endl;
 	}
 
 };
 
-NSSmartUtils::CEventEngine tms;
+NSSmartUtils::CNotifierEngine tms;
 
 void f()
 {
@@ -59,17 +85,22 @@ int main()
 	NSSmartUtils::CSingleton<int>::GetInst() = 12345;
 	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
 
-	std::shared_ptr<NSSmartUtils::CTimerEventHandler> ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_REALTIME, 1, 1);
+	std::shared_ptr < NSSmartUtils::CTimerBase > ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_REALTIME, 1, 1);
 
 	ptr->Open();
 	tms.Open();
 
-	NSSmartUtils::EventHandlerPtr_t p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	NSSmartUtils::EventNotifierPtr_t p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
 	tms.AsyncAddEvent(p);
 
 	std::thread t(f);
 
 	std::this_thread::sleep_for(10s);
+
+	ptr11 = std::make_shared<CMyEvent>();
+	ptr11->Open();
+	NSSmartUtils::EventNotifierPtr_t ppp = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CEventBase>(ptr11);
+	tms.AsyncAddEvent(ppp);
 
 	ptr = nullptr;
 
@@ -77,19 +108,19 @@ int main()
 
 	std::this_thread::sleep_for(10s);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_MONOTONIC, 2, 1);
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_MONOTONIC, 2, 1);
 
-	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_REALTIME, 3, 1);
-	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_REALTIME, 3, 1);
+	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerEventHandler::ETimerType::ETT_MONOTONIC, 5, 1);
-	p = static_pointer_cast<NSSmartUtils::IEventHandler, NSSmartUtils::CTimerEventHandler>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_MONOTONIC, 5, 1);
+	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 

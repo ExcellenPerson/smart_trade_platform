@@ -9,22 +9,23 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <sys/timerfd.h>
+#include <sys/eventfd.h>
 
 #include "EventNotifier.h"
 
 namespace NSSmartUtils
 {
 
-	CEventEngine::CEventEngine()
+	CNotifierEngine::CNotifierEngine()
 			: epfd_(-1)
 	{
 	}
 
-	CEventEngine::~CEventEngine()
+	CNotifierEngine::~CNotifierEngine()
 	{
 	}
 
-	void CEventEngine::AsyncAddEvent(EventHandlerPtr_t& pEvtHandler)
+	void CNotifierEngine::AsyncAddEvent(EventNotifierPtr_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(EventHandlersAddVecMtx_);
 		if (!Opened())
@@ -35,7 +36,7 @@ namespace NSSmartUtils
 		TmpAddEventHandlersVec_.push_back(pEvtHandler);
 	}
 
-	void CEventEngine::AsyncRemoveEvent(EventHandlerPtr_t& pEvtHandler)
+	void CNotifierEngine::AsyncRemoveEvent(EventNotifierPtr_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(EventHandlersRemoveVecMtx_);
 		if (!Opened())
@@ -47,7 +48,7 @@ namespace NSSmartUtils
 	}
 
 #define MAX_EVENTS (100)
-	void CEventEngine::CheckOnce(int32_t TimeoutMS)
+	void CNotifierEngine::CheckOnce(int32_t TimeoutMS)
 	{
 		if (!Opened())
 		{
@@ -57,7 +58,7 @@ namespace NSSmartUtils
 
 		if (!TmpRemoveEventHandlersVec_.empty())
 		{
-			std::vector<EventHandlerPtr_t> TmpVec;
+			std::vector<EventNotifierPtr_t> TmpVec;
 
 			{
 				std::lock_guard < std::mutex > lock(EventHandlersRemoveVecMtx_);
@@ -79,7 +80,7 @@ namespace NSSmartUtils
 
 		if (!TmpAddEventHandlersVec_.empty())
 		{
-			std::vector<EventHandlerPtr_t> TmpVec;
+			std::vector<EventNotifierPtr_t> TmpVec;
 
 			{
 				std::lock_guard < std::mutex > lock(EventHandlersAddVecMtx_);
@@ -109,7 +110,7 @@ namespace NSSmartUtils
 
 		for (int32_t n = 0; n < nfds; ++n)
 		{
-			IEventHandler* pHandler = static_cast<IEventHandler*>(events[n].data.ptr);
+			IEventNotifier* pHandler = static_cast<IEventNotifier*>(events[n].data.ptr);
 			SU_ASSERT(NULL != pHandler)
 			pHandler->HandleEvents(events[n].events);
 		}
@@ -118,14 +119,13 @@ namespace NSSmartUtils
 
 	const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
 
-	CTimerEventHandler::CTimerEventHandler(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
-			: fd_(-1), TimerType_(timer_type), InitExpireSeconds_(interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(interval_seconds), IntervalNanos_(
-					interval_nanos)
+	CTimerBase::CTimerBase(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+			: fd_(-1), TimerType_(timer_type), InitExpireSeconds_(interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(interval_seconds), IntervalNanos_(interval_nanos)
 	{
 
 	}
 
-	CTimerEventHandler::~CTimerEventHandler()
+	CTimerBase::~CTimerBase()
 	{
 		if (-1 == fd_)
 		{
@@ -133,7 +133,7 @@ namespace NSSmartUtils
 		}
 	}
 
-	int32_t CTimerEventHandler::Open()
+	int32_t CTimerBase::Open()
 	{
 
 		SU_ASSERT(InitExpireNanos_ < NANOS_OF_ONE_SECONDS && IntervalNanos_ < NANOS_OF_ONE_SECONDS);
@@ -178,7 +178,7 @@ namespace NSSmartUtils
 
 	}
 
-	int32_t CTimerEventHandler::Close()
+	int32_t CTimerBase::Close()
 	{
 		SU_ASSERT(-1 == !fd_)
 		close(fd_);
@@ -187,12 +187,12 @@ namespace NSSmartUtils
 		return EEC_ERR;
 	}
 
-	uint32_t CTimerEventHandler::GetEvents()
+	uint32_t CTimerBase::GetEvents()
 	{
 		return EPOLLIN;
 	}
 
-	void CTimerEventHandler::HandleEvents(uint32_t events)
+	void CTimerBase::HandleEvents(uint32_t events)
 	{
 		SU_ASSERT(EPOLLIN == events)
 
@@ -204,10 +204,10 @@ namespace NSSmartUtils
 			return;
 		}
 
-		HandleTimer(times);
+		HandleTimeout(times);
 	}
 
-	int32_t CEventEngine::Open()
+	int32_t CNotifierEngine::Open()
 	{
 		std::lock_guard < std::mutex > A(EventHandlersRemoveVecMtx_);
 		std::lock_guard < std::mutex > B(EventHandlersAddVecMtx_);
@@ -228,7 +228,7 @@ namespace NSSmartUtils
 		return ((epfd_ = epoll_create(MAX_EVENTS)) == -1 ? EEC_ERR : EEC_SUC);
 	}
 
-	int32_t CEventEngine::Close()
+	int32_t CNotifierEngine::Close()
 	{
 		std::lock_guard < std::mutex > A(EventHandlersRemoveVecMtx_);
 		std::lock_guard < std::mutex > B(EventHandlersAddVecMtx_);
@@ -248,11 +248,65 @@ namespace NSSmartUtils
 		return EEC_SUC;
 	}
 
-	bool CEventEngine::Opened()
+	bool CNotifierEngine::Opened()
 	{
 		return !(-1 == epfd_);
 	}
 
+	CEventBase::CEventBase()
+			: fd_(-1)
+	{
+	}
+
+	CEventBase::~CEventBase()
+	{
+		Close();
+	}
+
+	int32_t CEventBase::Open()
+	{
+		return (fd_ = eventfd(0, 0)) == -1 ? EEC_ERR : EEC_SUC;
+	}
+
+	int32_t CEventBase::Close()
+	{
+		if (-1 != fd_)
+		{
+			close(fd_);
+			fd_ = -1;
+
+			return EEC_SUC;
+		}
+
+		return EEC_ERR;
+	}
+
+	uint32_t CEventBase::GetEvents()
+	{
+		return EPOLLIN;
+	}
+
+	void CEventBase::Notify(uint64_t val)
+	{
+		write(fd_, &val, sizeof(uint64_t));
+	}
+
+	void CEventBase::HandleEvents(uint32_t evts)
+	{
+		SU_ASSERT(EPOLLIN == evts)
+
+		uint64_t val = 0;
+		ssize_t s = read(fd_, &val, sizeof(uint64_t));
+		if (s != sizeof(uint64_t))
+		{
+			SU_ASSERT(false);
+			return;
+		}
+
+		HandleEvent(val);
+	}
+
 }
+
 /* namespace NSSmartUtils */
 
