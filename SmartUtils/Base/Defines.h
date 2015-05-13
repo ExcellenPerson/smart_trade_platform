@@ -29,4 +29,11 @@
 	class_name ( class_name && ) = delete; \
 	class_name & operator= ( class_name && ) = delete;
 
+#define SAFE_CLOSE_FD(fd) \
+		if (-1 != fd) \
+		{\
+			close(fd);\
+			fd = -1;\
+		}
+
 #endif /* UTILS_DEFINES_H_ */

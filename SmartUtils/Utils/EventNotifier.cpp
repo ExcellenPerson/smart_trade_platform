@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/timerfd.h>
 #include <sys/eventfd.h>
+#include <sys/signalfd.h>
 
 #include "EventNotifier.h"
 
@@ -304,6 +305,72 @@ namespace NSSmartUtils
 		}
 
 		HandleEvent(val);
+	}
+
+	CSignalBase::CSignalBase(std::vector<int32_t> &&vec)
+			: SignalsVec_(vec)
+	{
+	}
+
+	CSignalBase::~CSignalBase()
+	{
+	}
+
+	int32_t CSignalBase::Open()
+	{
+		sigset_t mask;
+		sigemptyset(&mask);
+		SU_ASSERT(!SignalsVec_.empty())
+		for (std::vector<int32_t>::iterator iter = SignalsVec_.begin(); iter != SignalsVec_.end(); iter++)
+		{
+			sigaddset(&mask, *iter);
+			//std::cout<<*iter<<std::endl;
+		}
+
+		if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
+		{
+			SU_ASSERT(false);
+			return EEC_ERR;
+		}
+
+		fd_ = signalfd(-1, &mask, SFD_NONBLOCK);
+		if (fd_ == -1)
+		{
+			SU_ASSERT(false);
+			return EEC_ERR;
+		}
+
+		return EEC_SUC;
+	}
+
+	int32_t CSignalBase::Close()
+	{
+		SAFE_CLOSE_FD(fd_)
+
+		return EEC_SUC;
+	}
+
+	uint32_t CSignalBase::GetEvents()
+	{
+		return EPOLLIN;
+	}
+
+	void CSignalBase::HandleEvents(uint32_t evts)
+	{
+		//std::cout<<"get signal"<<std::endl;
+		struct signalfd_siginfo fdsi;
+		ssize_t s;
+		for (;;)
+		{
+			s = read(fd_, &fdsi, sizeof(struct signalfd_siginfo));
+			if (s != sizeof(struct signalfd_siginfo))
+			{
+				SU_ASSERT(EAGAIN == errno)
+				break;
+			}
+
+			HandleSignal(fdsi.ssi_signo);
+		}
 	}
 
 }

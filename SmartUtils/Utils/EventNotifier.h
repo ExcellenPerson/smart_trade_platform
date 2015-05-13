@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <vector>
 #include <mutex>
+#include <signal.h>
 
 #include "../Base/Base.h"
 
@@ -96,6 +97,8 @@ namespace NSSmartUtils
 	 * */
 	class CEventBase: public IEventNotifier
 	{
+		DISABLE_COPY(CEventBase)
+		DISABLE_MOVE(CEventBase)
 	public:
 		explicit CEventBase();
 		virtual ~CEventBase();
@@ -117,6 +120,36 @@ namespace NSSmartUtils
 		int32_t fd_;
 	};
 	typedef std::shared_ptr<NSSmartUtils::CEventBase> EventBasePtr_t;
+
+	/**
+	 *
+	 *
+	 * */
+	class CSignalBase: public IEventNotifier
+	{
+		DISABLE_COPY(CSignalBase)
+		//DISABLE_MOVE(CSignalBase)
+	public:
+		explicit CSignalBase(std::vector<int32_t> &&vec);
+		virtual ~CSignalBase();
+
+	public:
+		int32_t Open();
+		int32_t Close();
+		uint32_t GetEvents();
+		void HandleEvents(uint32_t evts);
+		int32_t GetFD()
+		{
+			return fd_;
+		}
+
+		virtual void HandleSignal(int32_t sig) = 0;
+
+	private:
+		std::vector<int> SignalsVec_;
+		int32_t fd_;
+	};
+	typedef std::shared_ptr<NSSmartUtils::CSignalBase> SignalBasePtr_t;
 
 	/**
 	 *

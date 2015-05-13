@@ -80,22 +80,53 @@ void f()
 	}
 }
 
+class CMySignalHandler: public NSSmartUtils::CSignalBase
+{
+public:
+	CMySignalHandler(std::vector<int32_t> & vec)
+			: CSignalBase(std::move(vec))
+	{
+
+	}
+
+	virtual void OnAdded(bool Suc)
+	{
+		cout<<"signal added" <<endl;
+	}
+	virtual void OnRemoved(bool Suc)
+	{
+
+	}
+
+public:
+	void HandleSignal(int32_t sig)
+	{
+		cout<<"Got signal : " << sig <<endl;
+	}
+
+};
+
 int main()
 {
 	NSSmartUtils::CSingleton<int>::GetInst() = 12345;
 	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
 
 	std::shared_ptr < NSSmartUtils::CTimerBase > ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_REALTIME, 1, 1);
-
 	ptr->Open();
 	tms.Open();
 
 	NSSmartUtils::EventNotifierPtr_t p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
 	tms.AsyncAddEvent(p);
 
-	std::thread t(f);
+	//std::thread t(f);
 
-	std::this_thread::sleep_for(10s);
+	///test signal
+	std::vector<int32_t> vec = {SIGINT, SIGQUIT};
+	NSSmartUtils::EventNotifierPtr_t pSignal = std::make_shared < CMySignalHandler > (vec);
+	pSignal->Open();
+	tms.AsyncAddEvent(pSignal);
+
+	//std::this_thread::sleep_for(10s);
 
 	ptr11 = std::make_shared<CMyEvent>();
 	ptr11->Open();
@@ -106,7 +137,7 @@ int main()
 
 	cout << "!!!stop!!!" << endl; // prints !!!Hello World!!!
 
-	std::this_thread::sleep_for(10s);
+	//std::this_thread::sleep_for(10s);
 
 	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_MONOTONIC, 2, 1);
 
@@ -124,19 +155,24 @@ int main()
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
-	std::this_thread::sleep_for(20s);
+	//std::this_thread::sleep_for(20s);
 
-	tms.AsyncRemoveEvent(p);
+	//tms.AsyncRemoveEvent(p);
 
 	//ptr1 = nullptr;
 
-	std::this_thread::sleep_for(20s);
+	//std::this_thread::sleep_for(20s);
 
 	//ptr2 = nullptr;
 
-	std::this_thread::sleep_for(20s);
+	//std::this_thread::sleep_for(20s);
 
 	//tms.Stop();
+
+	f();
+
+	std::this_thread::sleep_for(50s);
+
 
 	cout << "!!!test over!!!" << endl; // prints !!!Hello World!!!
 	return 0;
