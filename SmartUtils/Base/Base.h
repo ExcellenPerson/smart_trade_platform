@@ -24,6 +24,7 @@
 
 #include "Defines.h"
 #include "Types.h"
+#include "Config.h"
 
 namespace NSSmartUtils
 {
