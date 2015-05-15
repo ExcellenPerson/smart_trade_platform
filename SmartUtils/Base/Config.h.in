@@ -2,6 +2,7 @@
 #define STP_VERSION_MINOR @VERSION_MINOR@
 
 #cmakedefine USE_SMART_UTILS_LIB
+#cmakedefine USE_SMART_UTILS_LIBtest
  
 // does the platform provide exp and log functions?
 #cmakedefine HAVE_SIGNALFD

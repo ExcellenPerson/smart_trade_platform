@@ -1,0 +1,2 @@
+/home/rock/git/SmartTradePlatform/build/STPTest/CMakeFiles/STPTest.dir
+/home/rock/git/SmartTradePlatform/build/SmartUtils/CMakeFiles/SmartUtils.dir

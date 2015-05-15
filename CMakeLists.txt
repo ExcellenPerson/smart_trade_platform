@@ -10,6 +10,7 @@ set (VERSION_MINOR 1)
 # does this system provide the log and exp functions?
 include (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 check_function_exists (signalfd HAVE_SIGNALFD)
+check_function_exists (signaltest HAVE_SIGNALFDtest)
  
 # should we use our own math functions
 option(USE_SMART_UTILS_LIB "Use SmartUtils library" ON)
