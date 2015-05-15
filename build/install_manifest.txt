@@ -1,2 +1,0 @@
-/usr/local/CMakeBuild/libSmartUtils.a
-/usr/local/CMakeBuild/STPTest

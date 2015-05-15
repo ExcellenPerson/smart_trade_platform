@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC -std=c++1y -g   -shared -Wl,-soname,libSmartUtils.so -o libSmartUtils.so CMakeFiles/SmartUtils.dir/Utils/EventNotifier.cpp.o 
