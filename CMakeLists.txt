@@ -1,16 +1,22 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (SmartTradePlatform)
+project (SmartTradePlatform C CXX)
 
 # The version number.
 set (VERSION_MAJOR 0)
 set (VERSION_MINOR 1)
 
+find_package(Threads REQUIRED)
 
 # does this system provide the log and exp functions?
 include (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 check_function_exists (signalfd HAVE_SIGNALFD)
 check_function_exists (signaltest HAVE_SIGNALFDtest)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions(-Wall)
+endif()
+
  
 # should we use our own math functions
 option(USE_SMART_UTILS_LIB "Use SmartUtils library" ON)
@@ -36,6 +42,8 @@ endif (USE_SMART_UTILS_LIB)
  
 # add the executable
 add_subdirectory (STPTest)
+
+
 
 
 
