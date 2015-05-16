@@ -14,7 +14,7 @@ check_function_exists (signalfd HAVE_SIGNALFD)
 check_function_exists (signaltest HAVE_SIGNALFDtest)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-Wall)
+    add_definitions(-Wall -std=c++1y)
 endif()
 
  

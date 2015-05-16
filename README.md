@@ -6,3 +6,25 @@
 架构：CS+BS。
 
 开发环境：本项目用eclipse-cdt开发，打开Eclipse-cdt后直接import进去即可，很方便：）。
+
+
+run test...
+
+[rock@localhost CMakeBuild]$ ls
+CMakeBuild  CMakeCache.txt  CMakeFiles  cmake_install.cmake  install_manifest.txt  Makefile  SmartUtils  STPBIN  STPTest  Testing
+[rock@localhost CMakeBuild]$ pwd
+/home/rock/git/STP/CMakeBuild
+[rock@localhost CMakeBuild]$ make test
+make: *** No rule to make target 'test'.  Stop.
+[rock@localhost CMakeBuild]$ cd STPTest/
+[rock@localhost STPTest]$ ctest
+Test project /home/rock/git/STP/CMakeBuild/STPTest
+    Start 1: STPTesting
+^C
+[rock@localhost STPTest]$ 
+
+
+
+
+
+
