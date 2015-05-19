@@ -6,8 +6,8 @@
 // Description : SmartNet
 //============================================================================
 
-#ifndef RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_
-#define RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_
+#ifndef RELIABLECAST_RELIABLECAST_H_
+#define RELIABLECAST_RELIABLECAST_H_
 
 #include <Common/Common.h>
 
@@ -55,4 +55,4 @@ private:
 
 } /* namespace NSSmartNet */
 
-#endif /* RELIABLEPROTOCAL_RELIABLEPROTOCAL_H_ */
+#endif /* RELIABLECAST_RELIABLECAST_H_ */

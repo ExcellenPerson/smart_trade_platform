@@ -10,8 +10,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <vector>
+
+#include "ReliableCast.h"
 //#include <impl/framework.h>
-#include "ReliableProtocal.h"
 
 namespace
 {
