@@ -16,36 +16,32 @@
 
 namespace
 {
+	using namespace NSSmartUtils;
+
+	const size_t IPV4_ADDR_NUM_LEN = 4;
+	const size_t IPV6_ADDR_NUM_LEN = 16;
+
 	typedef std::vector<byte_t> IPNumAddr_t;
 	typedef std::vector<IPNumberAddr_t> IPNumAddrList_t;
-
 
 	int32_t JoinGroup(int32_t Sock, const IPNumAddr_t &MulticastIP) const
 	{
 		if (-1 == Sock)
 		{
-
+			return EEC_ERR;
 		}
 
 		switch (group_address.size())
 		{
-			case kIPv4AddressSize:
+			case IPV4_ADDR_NUM_LEN:
 			{
-				if (addr_family_ != AF_INET)
-					return ERR_ADDRESS_INVALID;
+//				if (addr_family_ != AF_INET)
+//					return ERR_ADDRESS_INVALID;
 
-	#if !defined(OS_MACOSX)
 				ip_mreqn mreq;
 				mreq.imr_ifindex = multicast_interface_;
 				mreq.imr_address.s_addr = htonl(INADDR_ANY);
-	#else
-				ip_mreq mreq;
-				int error = GetIPv4AddressFromIndex(socket_, multicast_interface_,
-						&mreq.imr_interface.s_addr);
-				if (error != OK)
-				return error;
-	#endif
-				memcpy(&mreq.imr_multiaddr, &group_address[0], kIPv4AddressSize);
+				memcpy(&mreq.imr_multiaddr, &MulticastIP[0], IPV4_ADDR_NUM_LEN);
 				int rv = setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 				if (rv < 0)
 					return MapSystemError(errno);
@@ -68,8 +64,6 @@ namespace
 				return ERR_ADDRESS_INVALID;
 		}
 	}
-
-
 
 	static uint8_t pgm_in_mask2len(const struct in_addr*);
 	static uint8_t pgm_in6_mask2len(const struct in6_addr*);

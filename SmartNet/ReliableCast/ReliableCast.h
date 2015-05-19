@@ -15,7 +15,7 @@ namespace NSSmartNet
 {
 
 /*
- * support unreliable/reliable unicast, multicast and broadcast
+ * support unreliable/reliable unicast, multicast
  */
 class CNetEndpoint
 {
