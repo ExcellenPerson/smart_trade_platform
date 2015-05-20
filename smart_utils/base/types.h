@@ -13,7 +13,7 @@
 ///following <cstdint>'s style...
 typedef void* vptr_t;
 typedef unsigned char byte_t;
-typedef byte_t* bptr_t;
+typedef byte_t* bytes_ptr_t;
 
 
 

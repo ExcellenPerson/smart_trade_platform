@@ -9,49 +9,56 @@
 #ifndef RELIABLE_CAST_RELIABLE_CAST_H_
 #define RELIABLE_CAST_RELIABLE_CAST_H_
 
+#include <stddef.h>
 #include <base/base.h>
+#include <utils/lock_free_ringbuf.h>
 
 namespace ns_smart_net
 {
 
-/*
- * support unreliable/reliable unicast, multicast
- */
-class net_endpoint
-{
-	DISABLE_COPY(net_endpoint)
-	DISABLE_MOVE(net_endpoint)
-
-public:
-	enum cast_type
+	typedef struct
 	{
-		ECT_NONE = -1, ECT_UNICAST = 0, ECT_MULTICAST = 1, ECT_BROADCAST = 2
-	};
+		void *iov_base; /* Starting address */
+		size_t iov_len; /* Number of bytes to transfer */
+	} iovec_t;
 
-	enum endpoint_type
+	/*
+	 * support unreliable/reliable unicast, multicast
+	 */
+	class net_endpoint
 	{
-		EEPT_NONE = -1, EEPT_SENDER = 0, EEPT_RECVER = 1
-	};
+		DISABLE_COPY(net_endpoint)
+		DISABLE_MOVE(net_endpoint)
 
-	enum reliable_or_not
-	{
-		ERON_NONE = -1, ERON_RELIABLE = 0, ERON_NO_RELIABLE = 1
-	};
+	public:
+		enum cast_type
+		{
+			ECT_NONE = -1, ECT_UNICAST = 0, ECT_MULTICAST = 1, ECT_BROADCAST = 2
+		};
 
-public:
-	net_endpoint(ECastType ect, EEPType eept, EReliableOrNot eron);
-	~net_endpoint();
+		enum endpoint_type
+		{
+			EEPT_NONE = -1, EEPT_SENDER = 0, EEPT_RECVER = 1
+		};
 
-public:
-	int32_t SetData(DATA_REF &dr);
-	bptr_t GetData();
+		enum reliable_or_not
+		{
+			ERON_NONE = -1, ERON_RELIABLE = 0, ERON_NO_RELIABLE = 1
+		};
 
-private:
-	ns_smart_utils::RingBufPtr_t pInternalSendRB_;
-	ns_smart_utils::RingBufPtr_t pInternalRecvRB_;
-	ns_smart_utils::MemPoolPtr_t pMemPool_;
-}
-;
+	public:
+		net_endpoint(cast_type ect, endpoint_type eept, reliable_or_not eron);
+		~net_endpoint();
+
+	public:
+		int32_t set_data(iovec_t &iov);///not thread-safe, only allow one setter
+		iovec_t& get_data();
+
+	private:
+		ns_smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t output_ringbuf_;
+		ns_smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t input_ringbuf_;
+	}
+	;
 
 } /* namespace NSSmartNet */
 

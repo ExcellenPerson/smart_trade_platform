@@ -35,7 +35,7 @@ namespace ns_smart_utils
 		 * C++11's standard : If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.
 		 * TheRockLhy: this is a thread-safe implementation
 		 * */
-		static T& GetInst()
+		static T& get_inst()
 		{
 			static T st;
 			return st;

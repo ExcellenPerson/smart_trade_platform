@@ -26,7 +26,7 @@ namespace ns_smart_utils
 	{
 	}
 
-	void notifier_engine::async_add_event(notifier_ptr_t& pEvtHandler)
+	void notifier_engine::async_add_notifier(notifier_ptr_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(tmp_notifier_add_mtx_);
 		if (!is_opened())
@@ -37,7 +37,7 @@ namespace ns_smart_utils
 		tmp_add_notifiers_.push_back(pEvtHandler);
 	}
 
-	void notifier_engine::async_remove_event(notifier_ptr_t& pEvtHandler)
+	void notifier_engine::async_remove_notifier(notifier_ptr_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(tmp_notifier_remove_mtx_);
 		if (!is_opened())
@@ -74,29 +74,29 @@ namespace ns_smart_utils
 				///should specify a non-null pointer in event.
 				notifiers_t::size_type st = notifiers_.erase(*iter);
 				SU_ASSERT(1 == st)
-				(*iter)->OnRemoved(0 == st ? false : (epoll_ctl(epfd_, EPOLL_CTL_DEL, (*iter)->GetFD(),
+				(*iter)->on_removed(0 == st ? false : (epoll_ctl(epfd_, EPOLL_CTL_DEL, (*iter)->get_fd(),
 				NULL) == 0));
 			}
 		}
 
 		if (!tmp_add_notifiers_.empty())
 		{
-			std::vector<notifier_ptr_t> TmpVec;
+			tmp_notifiers_t tmp_add_notifiers;
 
 			{
 				std::lock_guard < std::mutex > lock(tmp_notifier_add_mtx_);
-				tmp_add_notifiers_.swap(TmpVec);
+				tmp_add_notifiers_.swap(tmp_add_notifiers);
 			}
 			SU_ASSERT(tmp_add_notifiers_.empty())
 
-			for (tmp_notifiers_t::iterator iter = TmpVec.begin(); iter != TmpVec.end(); iter++)
+			for (tmp_notifiers_t::iterator iter = tmp_add_notifiers.begin(); iter != tmp_add_notifiers.end(); iter++)
 			{
 				std::pair<notifiers_t::iterator, bool> ret = notifiers_.insert(*iter);
 				SU_ASSERT(ret.second)
 				struct epoll_event evt =
 				{ (*iter)->get_events(),
 				{ (*iter).get() }, };
-				(*iter)->OnAdded((!ret.second) ? false : (epoll_ctl(epfd_, EPOLL_CTL_ADD, (*iter)->GetFD(), &evt) == 0));	//you see, i wanna you get the errno:)...
+				(*iter)->on_added((!ret.second) ? false : (epoll_ctl(epfd_, EPOLL_CTL_ADD, (*iter)->get_fd(), &evt) == 0));	//you see, i wanna you get the errno:)...
 			}
 		}
 
@@ -120,8 +120,8 @@ namespace ns_smart_utils
 
 	const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
 
-	timer_base::timer_base(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
-			: fd_(-1), TimerType_(timer_type), init_expire_s_(interval_seconds), init_expire_ns_(interval_nanos), interval_s_(interval_seconds), interval_ns_(interval_nanos)
+	timer_base::timer_base(const ETimerType tt, int64_t interval_seconds, int64_t interval_nanos)
+			: fd_(-1), timer_type_(tt), init_expire_s_(interval_seconds), init_expire_ns_(interval_nanos), interval_s_(interval_seconds), interval_ns_(interval_nanos)
 	{
 
 	}
@@ -130,7 +130,7 @@ namespace ns_smart_utils
 	{
 		if (-1 == fd_)
 		{
-			close(fd_);
+			::close(fd_);
 		}
 	}
 
@@ -139,12 +139,12 @@ namespace ns_smart_utils
 
 		SU_ASSERT(init_expire_ns_ < NANOS_OF_ONE_SECONDS && interval_ns_ < NANOS_OF_ONE_SECONDS);
 
-		if (ETT_REALTIME != TimerType_ && ETT_MONOTONIC != TimerType_)
+		if (ETT_REALTIME != timer_type_ && ETT_MONOTONIC != timer_type_)
 		{
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
-		int32_t timer_type = ETT_REALTIME == TimerType_ ? CLOCK_REALTIME : CLOCK_MONOTONIC;
+		int32_t timer_type = ETT_REALTIME == timer_type_ ? CLOCK_REALTIME : CLOCK_MONOTONIC;
 
 		struct timespec now =
 		{ 0 };
@@ -152,7 +152,7 @@ namespace ns_smart_utils
 #if (__ABS_TIME__)
 		if (clock_gettime(timer_type, &now) == -1)
 		{
-			return EEC_ERR;
+			return EC_ERR;
 		}
 		flags = TFD_TIMER_ABSTIME;
 #endif
@@ -167,25 +167,25 @@ namespace ns_smart_utils
 		fd_ = timerfd_create(timer_type, 0);
 		if (fd_ == -1)
 		{
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
 		if (timerfd_settime(fd_, flags, &new_value, NULL) == -1)
 		{
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
-		return EEC_SUC;
+		return EC_SUC;
 
 	}
 
 	int32_t timer_base::close()
 	{
 		SU_ASSERT(-1 == !fd_)
-		close(fd_);
+		::close(fd_);
 		fd_ = -1;
 
-		return EEC_ERR;
+		return EC_ERR;
 	}
 
 	uint32_t timer_base::get_events()
@@ -215,7 +215,7 @@ namespace ns_smart_utils
 
 		if (is_opened())
 		{
-			return EEC_REDO_ERR;
+			return EC_REDO_ERR;
 		}
 
 		SU_ASSERT(tmp_add_notifiers_.empty() && tmp_remove_notifiers_.empty() && notifiers_.empty())
@@ -226,7 +226,7 @@ namespace ns_smart_utils
 		 in  size.)  Nowadays, this hint is no longer required (the kernel dynamically sizes the required data structures without needing the hint),
 		 but size must still be greater than zero, in order to ensure backward compatibility when new epoll applications are run on older kernels.
 		 * */
-		return ((epfd_ = epoll_create(MAX_EVENTS)) == -1 ? EEC_ERR : EEC_SUC);
+		return ((epfd_ = epoll_create(MAX_EVENTS)) == -1 ? EC_ERR : EC_SUC);
 	}
 
 	int32_t notifier_engine::close()
@@ -236,17 +236,16 @@ namespace ns_smart_utils
 
 		if (!is_opened())
 		{
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
 		tmp_add_notifiers_.clear();
 		tmp_remove_notifiers_.clear();
 		notifiers_.clear();
 
-		close(epfd_);
-		epfd_ = -1;
+		SAFE_CLOSE_FD(epfd_)
 
-		return EEC_SUC;
+		return EC_SUC;
 	}
 
 	bool notifier_engine::is_opened()
@@ -266,20 +265,20 @@ namespace ns_smart_utils
 
 	int32_t event_base::open()
 	{
-		return (fd_ = eventfd(0, 0)) == -1 ? EEC_ERR : EEC_SUC;
+		return (fd_ = eventfd(0, 0)) == -1 ? EC_ERR : EC_SUC;
 	}
 
 	int32_t event_base::close()
 	{
 		if (-1 != fd_)
 		{
-			close(fd_);
+			::close(fd_);
 			fd_ = -1;
 
-			return EEC_SUC;
+			return EC_SUC;
 		}
 
-		return EEC_ERR;
+		return EC_ERR;
 	}
 
 	uint32_t event_base::get_events()
@@ -330,24 +329,24 @@ namespace ns_smart_utils
 		if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
 		{
 			SU_ASSERT(false);
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
 		fd_ = signalfd(-1, &mask, SFD_NONBLOCK);
 		if (fd_ == -1)
 		{
 			SU_ASSERT(false);
-			return EEC_ERR;
+			return EC_ERR;
 		}
 
-		return EEC_SUC;
+		return EC_SUC;
 	}
 
 	int32_t signal_base::close()
 	{
 		SAFE_CLOSE_FD(fd_)
 
-		return EEC_SUC;
+		return EC_SUC;
 	}
 
 	uint32_t signal_base::get_events()

@@ -32,7 +32,7 @@
 #define SAFE_CLOSE_FD(fd) \
 		if (-1 != fd) \
 		{\
-			close(fd);\
+			::close(fd);\
 			fd = -1;\
 		}
 
