@@ -6,8 +6,11 @@
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/SmartNet"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/smart_net"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/SmartNet/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/smart_net/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="SmartNet" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="smart_net" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -66,8 +69,11 @@
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/SmartNet"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/smart_net"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/SmartNet/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/smart_net/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="SmartNet" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="smart_net" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>

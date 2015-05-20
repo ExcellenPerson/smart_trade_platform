@@ -22,15 +22,15 @@
 ///common header files...
 #include <cstdint>
 
-#include <base/Defines.h>
-#include <base/Types.h>
-#include <base/Config.h>
+#include "defines.h"
+#include "types.h"
+#include "config.h"
 
 namespace ns_smart_utils
 {
-	enum ESmartErrCode
+	enum error_code
 	{
-		ESEC = 0, ESEC_ERR = -1, ESEC_REDO_ERR = -2
+		EC_SUC = 0, EC_ERR = -1, EC_REDO_ERR = -2
 	};
 
 }

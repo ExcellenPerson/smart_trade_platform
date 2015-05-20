@@ -6,14 +6,13 @@
 // Description : SmartNet
 //============================================================================
 
-#include "reliablecast.h"
+#include "reliable_cast.h"
 
 #include <errno.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <vector>
 
-//#include <impl/framework.h>
 
 namespace
 {
@@ -22,31 +21,34 @@ namespace
 	const size_t IPV4_ADDR_NUM_LEN = 4;
 	const size_t IPV6_ADDR_NUM_LEN = 16;
 
-	typedef std::vector<byte_t> IPNumAddr_t;
-	typedef std::vector<IPNumberAddr_t> IPNumAddrList_t;
+	typedef std::vector<byte_t> ip_addr_t;
+	typedef std::vector<ip_addr_t> ip_addr_list_t;
 
-	int32_t join_multicast_group(int32_t sock, const int32_t local_bind_ifx_idx, const uint32_t local_bind_addr, const IPNumAddr_t &MulticastIP)
+	int32_t join_multicast_group(int32_t sock, const int32_t local_bind_ifx_idx, const uint32_t local_bind_addr, const ip_addr_t &multicast_ip_addr)
 	{
 		if (-1 == sock)
 		{
-			return EEC_ERR;
+			SU_ASSERT(false)
+			return EC_SUC;
 		}
 
-		switch (group_address.size())
+		int32_t ret = EC_SUC;
+		switch (multicast_ip_addr.size())
 		{
 			case IPV4_ADDR_NUM_LEN:
 			{
 //				if (addr_family_ != AF_INET)
 //					return ERR_ADDRESS_INVALID;
-
 				ip_mreqn mreq;
-				mreq.imr_ifindex = multicast_interface_;
-				mreq.imr_address.s_addr = htonl(INADDR_ANY);
-				memcpy(&mreq.imr_multiaddr, &MulticastIP[0], IPV4_ADDR_NUM_LEN);
-				int rv = setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
-				if (rv < 0)
-					return MapSystemError(errno);
-				return OK;
+				mreq.imr_ifindex = local_bind_ifx_idx;
+				mreq.imr_address.s_addr = htonl(local_bind_addr);
+				memcpy(&mreq.imr_multiaddr, &multicast_ip_addr[0], IPV4_ADDR_NUM_LEN);
+				if (setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
+				{
+					ret = errno;
+				}
+
+				break;
 			}
 			case kIPv6AddressSize:
 			{

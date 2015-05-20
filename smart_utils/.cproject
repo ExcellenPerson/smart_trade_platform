@@ -6,8 +6,11 @@
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/SmartUtils"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/smart_utils"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/SmartUtils/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/smart_utils/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="SmartUtils" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="smart_utils" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -69,8 +72,11 @@
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/SmartUtils"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/smart_utils"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/SmartUtils/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/smart_utils/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="SmartUtils" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="smart_utils" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>

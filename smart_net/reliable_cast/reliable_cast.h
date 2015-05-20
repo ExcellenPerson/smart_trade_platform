@@ -6,8 +6,8 @@
 // Description : SmartNet
 //============================================================================
 
-#ifndef RELIABLECAST_RELIABLECAST_H_
-#define RELIABLECAST_RELIABLECAST_H_
+#ifndef RELIABLE_CAST_RELIABLE_CAST_H_
+#define RELIABLE_CAST_RELIABLE_CAST_H_
 
 #include <base/base.h>
 
@@ -17,30 +17,30 @@ namespace ns_smart_net
 /*
  * support unreliable/reliable unicast, multicast
  */
-class CNetEndpoint
+class net_endpoint
 {
-	DISABLE_COPY(CNetEndpoint)
-	DISABLE_MOVE(CNetEndpoint)
+	DISABLE_COPY(net_endpoint)
+	DISABLE_MOVE(net_endpoint)
 
 public:
-	enum ECastType
+	enum cast_type
 	{
 		ECT_NONE = -1, ECT_UNICAST = 0, ECT_MULTICAST = 1, ECT_BROADCAST = 2
 	};
 
-	enum EEPType
+	enum endpoint_type
 	{
 		EEPT_NONE = -1, EEPT_SENDER = 0, EEPT_RECVER = 1
 	};
 
-	enum EReliableOrNot
+	enum reliable_or_not
 	{
 		ERON_NONE = -1, ERON_RELIABLE = 0, ERON_NO_RELIABLE = 1
 	};
 
 public:
-	CNetEndpoint(ECastType ect, EEPType eept, EReliableOrNot eron);
-	~CNetEndpoint();
+	net_endpoint(ECastType ect, EEPType eept, EReliableOrNot eron);
+	~net_endpoint();
 
 public:
 	int32_t SetData(DATA_REF &dr);
@@ -55,4 +55,4 @@ private:
 
 } /* namespace NSSmartNet */
 
-#endif /* RELIABLECAST_RELIABLECAST_H_ */
+#endif /* RELIABLE_CAST_RELIABLE_CAST_H_ */
