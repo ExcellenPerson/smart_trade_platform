@@ -18,25 +18,29 @@
 namespace ns_smart_utils
 {
 
-template<typename T>
-class CSingleton
-{
-
-	DISABLE_CONSTRUCT_AND_DESTRUCT(CSingleton<T>)
-	DISABLE_COPY(CSingleton<T>)
-	DISABLE_MOVE(CSingleton<T>)
-
-public:
 	/**
-	 * C++11's standard : If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.
-	 * TheRockLhy: this is a thread-safe implementation
+	 *
+	 * thread-safe singleton implementation.
 	 * */
-	static T& GetInst()
+	template<typename T>
+	class singleton
 	{
-		static T st;
-		return st;
-	}
-};
+
+		DISABLE_CONSTRUCT_AND_DESTRUCT(singleton<T>)
+		DISABLE_COPY(singleton<T>)
+		DISABLE_MOVE(singleton<T>)
+
+	public:
+		/**
+		 * C++11's standard : If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.
+		 * TheRockLhy: this is a thread-safe implementation
+		 * */
+		static T& GetInst()
+		{
+			static T st;
+			return st;
+		}
+	};
 
 } /* namespace NSSmartUtils */
 

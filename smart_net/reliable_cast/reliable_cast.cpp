@@ -50,10 +50,11 @@ namespace
 
 				break;
 			}
-			case kIPv6AddressSize:
+			case IPV6_ADDR_NUM_LEN:
 			{
-				if (addr_family_ != AF_INET6)
-					return ERR_ADDRESS_INVALID;
+//				if (addr_family_ != AF_INET6)
+//					return ERR_ADDRESS_INVALID;
+
 				ipv6_mreq mreq;
 				mreq.ipv6mr_interface = multicast_interface_;
 				memcpy(&mreq.ipv6mr_multiaddr, &group_address[0], kIPv6AddressSize);
@@ -107,6 +108,7 @@ if		(!is_connected())
 		}
 	}
 
+#if 0
 	static uint8_t pgm_in_mask2len(const struct in_addr*);
 	static uint8_t pgm_in6_mask2len(const struct in6_addr*);
 	static void pgm_in_len2mask(const uint8_t, struct in_addr*);
@@ -1449,27 +1451,28 @@ pgm_sockaddr_to_nla (
 }
 
 /* eof */
+#endif
 
 }
 
 namespace ns_smart_net
 {
 
-CReliableNetEndpoint::CReliableNetEndpoint(ECastType ect, EEPType eept)
+net_endpoint::net_endpoint(ECastType ect, EEPType eept)
 {
 	// TODO Auto-generated constructor stub
 }
 
-CReliableNetEndpoint::~CReliableNetEndpoint()
+net_endpoint::~net_endpoint()
 {
 	// TODO Auto-generated destructor stub
 }
 
-int32_t CReliableNetEndpoint::SetData(bptr_t pData, uint32_t DataBytes)
+int32_t net_endpoint::SetData(bptr_t pData, uint32_t DataBytes)
 {
 }
 
-bptr_t CReliableNetEndpoint::GetData()
+bptr_t net_endpoint::GetData()
 {
 }
 

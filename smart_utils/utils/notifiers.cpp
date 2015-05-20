@@ -12,89 +12,89 @@
 #include <sys/eventfd.h>
 #include <sys/signalfd.h>
 
-#include "EventNotifier.h"
+#include <utils/notifiers.h>
 
 namespace ns_smart_utils
 {
 
-	CNotifierEngine::CNotifierEngine()
+	notifier_engine::notifier_engine()
 			: epfd_(-1)
 	{
 	}
 
-	CNotifierEngine::~CNotifierEngine()
+	notifier_engine::~notifier_engine()
 	{
 	}
 
-	void CNotifierEngine::AsyncAddEvent(EventNotifierPtr_t& pEvtHandler)
+	void notifier_engine::async_add_event(notifier_ptr_t& pEvtHandler)
 	{
-		std::lock_guard < std::mutex > lock(EventHandlersAddVecMtx_);
-		if (!Opened())
+		std::lock_guard < std::mutex > lock(tmp_notifier_add_mtx_);
+		if (!is_opened())
 		{
 			SU_ASSERT(false)
 			return;
 		}
-		TmpAddEventHandlersVec_.push_back(pEvtHandler);
+		tmp_add_notifiers_.push_back(pEvtHandler);
 	}
 
-	void CNotifierEngine::AsyncRemoveEvent(EventNotifierPtr_t& pEvtHandler)
+	void notifier_engine::async_remove_event(notifier_ptr_t& pEvtHandler)
 	{
-		std::lock_guard < std::mutex > lock(EventHandlersRemoveVecMtx_);
-		if (!Opened())
+		std::lock_guard < std::mutex > lock(tmp_notifier_remove_mtx_);
+		if (!is_opened())
 		{
 			SU_ASSERT(false)
 			return;
 		}
-		TmpRemoveEventHandlersVec_.push_back(pEvtHandler);
+		tmp_remove_notifiers_.push_back(pEvtHandler);
 	}
 
 #define MAX_EVENTS (100)
-	void CNotifierEngine::CheckOnce(int32_t TimeoutMS)
+	void notifier_engine::check_once(int32_t TimeoutMS)
 	{
-		if (!Opened())
+		if (!is_opened())
 		{
 			SU_ASSERT(false)
 			return;
 		}
 
-		if (!TmpRemoveEventHandlersVec_.empty())
+		if (!tmp_remove_notifiers_.empty())
 		{
-			std::vector<EventNotifierPtr_t> TmpVec;
+			std::vector<notifier_ptr_t> TmpVec;
 
 			{
-				std::lock_guard < std::mutex > lock(EventHandlersRemoveVecMtx_);
-				TmpRemoveEventHandlersVec_.swap(TmpVec);
+				std::lock_guard < std::mutex > lock(tmp_notifier_remove_mtx_);
+				tmp_remove_notifiers_.swap(TmpVec);
 			}
-			SU_ASSERT(TmpRemoveEventHandlersVec_.empty())
+			SU_ASSERT(tmp_remove_notifiers_.empty())
 
-			for (EventHandlersVec_t::iterator iter = TmpVec.begin(); iter != TmpVec.end(); iter++)
+			for (tmp_notifiers_t::iterator iter = TmpVec.begin(); iter != TmpVec.end(); iter++)
 			{
 				///In  kernel  versions  before 2.6.9, the EPOLL_CTL_DEL operation required a non-null pointer in event, even though this argument is ignored.
 				///Since Linux 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.  Applications that need to be portable to kernels before  2.6.9
 				///should specify a non-null pointer in event.
-				EventHandlersSet_t::size_type st = EventHandlersSet_.erase(*iter);
+				notifiers_t::size_type st = notifiers_.erase(*iter);
 				SU_ASSERT(1 == st)
 				(*iter)->OnRemoved(0 == st ? false : (epoll_ctl(epfd_, EPOLL_CTL_DEL, (*iter)->GetFD(),
 				NULL) == 0));
 			}
 		}
 
-		if (!TmpAddEventHandlersVec_.empty())
+		if (!tmp_add_notifiers_.empty())
 		{
-			std::vector<EventNotifierPtr_t> TmpVec;
+			std::vector<notifier_ptr_t> TmpVec;
 
 			{
-				std::lock_guard < std::mutex > lock(EventHandlersAddVecMtx_);
-				TmpAddEventHandlersVec_.swap(TmpVec);
+				std::lock_guard < std::mutex > lock(tmp_notifier_add_mtx_);
+				tmp_add_notifiers_.swap(TmpVec);
 			}
-			SU_ASSERT(TmpAddEventHandlersVec_.empty())
+			SU_ASSERT(tmp_add_notifiers_.empty())
 
-			for (EventHandlersVec_t::iterator iter = TmpVec.begin(); iter != TmpVec.end(); iter++)
+			for (tmp_notifiers_t::iterator iter = TmpVec.begin(); iter != TmpVec.end(); iter++)
 			{
-				std::pair<EventHandlersSet_t::iterator, bool> ret = EventHandlersSet_.insert(*iter);
+				std::pair<notifiers_t::iterator, bool> ret = notifiers_.insert(*iter);
 				SU_ASSERT(ret.second)
 				struct epoll_event evt =
-				{ (*iter)->GetEvents(),
+				{ (*iter)->get_events(),
 				{ (*iter).get() }, };
 				(*iter)->OnAdded((!ret.second) ? false : (epoll_ctl(epfd_, EPOLL_CTL_ADD, (*iter)->GetFD(), &evt) == 0));	//you see, i wanna you get the errno:)...
 			}
@@ -111,22 +111,22 @@ namespace ns_smart_utils
 
 		for (int32_t n = 0; n < nfds; ++n)
 		{
-			IEventNotifier* pHandler = static_cast<IEventNotifier*>(events[n].data.ptr);
+			notifier* pHandler = static_cast<notifier*>(events[n].data.ptr);
 			SU_ASSERT(NULL != pHandler)
-			pHandler->HandleEvents(events[n].events);
+			pHandler->handle_events(events[n].events);
 		}
 
 	}
 
 	const int64_t NANOS_OF_ONE_SECONDS = (1000 * 1000 * 1000);
 
-	CTimerBase::CTimerBase(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
-			: fd_(-1), TimerType_(timer_type), InitExpireSeconds_(interval_seconds), InitExpireNanos_(interval_nanos), IntervalSeconds_(interval_seconds), IntervalNanos_(interval_nanos)
+	timer_base::timer_base(const ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+			: fd_(-1), TimerType_(timer_type), init_expire_s_(interval_seconds), init_expire_ns_(interval_nanos), interval_s_(interval_seconds), interval_ns_(interval_nanos)
 	{
 
 	}
 
-	CTimerBase::~CTimerBase()
+	timer_base::~timer_base()
 	{
 		if (-1 == fd_)
 		{
@@ -134,10 +134,10 @@ namespace ns_smart_utils
 		}
 	}
 
-	int32_t CTimerBase::Open()
+	int32_t timer_base::open()
 	{
 
-		SU_ASSERT(InitExpireNanos_ < NANOS_OF_ONE_SECONDS && IntervalNanos_ < NANOS_OF_ONE_SECONDS);
+		SU_ASSERT(init_expire_ns_ < NANOS_OF_ONE_SECONDS && interval_ns_ < NANOS_OF_ONE_SECONDS);
 
 		if (ETT_REALTIME != TimerType_ && ETT_MONOTONIC != TimerType_)
 		{
@@ -159,10 +159,10 @@ namespace ns_smart_utils
 
 		struct itimerspec new_value =
 		{ 0 };
-		new_value.it_value.tv_sec = now.tv_sec + InitExpireSeconds_ + (now.tv_nsec + InitExpireNanos_) / NANOS_OF_ONE_SECONDS;
-		new_value.it_value.tv_nsec = (now.tv_nsec + InitExpireNanos_) % NANOS_OF_ONE_SECONDS;
-		new_value.it_interval.tv_sec = IntervalSeconds_ + IntervalNanos_ / NANOS_OF_ONE_SECONDS;
-		new_value.it_interval.tv_nsec = IntervalNanos_ % NANOS_OF_ONE_SECONDS;
+		new_value.it_value.tv_sec = now.tv_sec + init_expire_s_ + (now.tv_nsec + init_expire_ns_) / NANOS_OF_ONE_SECONDS;
+		new_value.it_value.tv_nsec = (now.tv_nsec + init_expire_ns_) % NANOS_OF_ONE_SECONDS;
+		new_value.it_interval.tv_sec = interval_s_ + interval_ns_ / NANOS_OF_ONE_SECONDS;
+		new_value.it_interval.tv_nsec = interval_ns_ % NANOS_OF_ONE_SECONDS;
 
 		fd_ = timerfd_create(timer_type, 0);
 		if (fd_ == -1)
@@ -179,7 +179,7 @@ namespace ns_smart_utils
 
 	}
 
-	int32_t CTimerBase::Close()
+	int32_t timer_base::close()
 	{
 		SU_ASSERT(-1 == !fd_)
 		close(fd_);
@@ -188,12 +188,12 @@ namespace ns_smart_utils
 		return EEC_ERR;
 	}
 
-	uint32_t CTimerBase::GetEvents()
+	uint32_t timer_base::get_events()
 	{
 		return EPOLLIN;
 	}
 
-	void CTimerBase::HandleEvents(uint32_t events)
+	void timer_base::handle_events(uint32_t events)
 	{
 		SU_ASSERT(EPOLLIN == events)
 
@@ -205,20 +205,20 @@ namespace ns_smart_utils
 			return;
 		}
 
-		HandleTimeout(times);
+		handle_timeout(times);
 	}
 
-	int32_t CNotifierEngine::Open()
+	int32_t notifier_engine::open()
 	{
-		std::lock_guard < std::mutex > A(EventHandlersRemoveVecMtx_);
-		std::lock_guard < std::mutex > B(EventHandlersAddVecMtx_);
+		std::lock_guard < std::mutex > A(tmp_notifier_remove_mtx_);
+		std::lock_guard < std::mutex > B(tmp_notifier_add_mtx_);
 
-		if (Opened())
+		if (is_opened())
 		{
 			return EEC_REDO_ERR;
 		}
 
-		SU_ASSERT(TmpAddEventHandlersVec_.empty() && TmpRemoveEventHandlersVec_.empty() && EventHandlersSet_.empty())
+		SU_ASSERT(tmp_add_notifiers_.empty() && tmp_remove_notifiers_.empty() && notifiers_.empty())
 		/*
 		 * In the initial epoll_create() implementation, the size argument informed the kernel of the number  of  file  descriptors  that  the  caller
 		 expected  to add to the epoll instance.  The kernel used this information as a hint for the amount of space to initially allocate in inter‐
@@ -229,19 +229,19 @@ namespace ns_smart_utils
 		return ((epfd_ = epoll_create(MAX_EVENTS)) == -1 ? EEC_ERR : EEC_SUC);
 	}
 
-	int32_t CNotifierEngine::Close()
+	int32_t notifier_engine::close()
 	{
-		std::lock_guard < std::mutex > A(EventHandlersRemoveVecMtx_);
-		std::lock_guard < std::mutex > B(EventHandlersAddVecMtx_);
+		std::lock_guard < std::mutex > A(tmp_notifier_remove_mtx_);
+		std::lock_guard < std::mutex > B(tmp_notifier_add_mtx_);
 
-		if (!Opened())
+		if (!is_opened())
 		{
 			return EEC_ERR;
 		}
 
-		TmpAddEventHandlersVec_.clear();
-		TmpRemoveEventHandlersVec_.clear();
-		EventHandlersSet_.clear();
+		tmp_add_notifiers_.clear();
+		tmp_remove_notifiers_.clear();
+		notifiers_.clear();
 
 		close(epfd_);
 		epfd_ = -1;
@@ -249,27 +249,27 @@ namespace ns_smart_utils
 		return EEC_SUC;
 	}
 
-	bool CNotifierEngine::Opened()
+	bool notifier_engine::is_opened()
 	{
 		return !(-1 == epfd_);
 	}
 
-	CEventBase::CEventBase()
+	event_base::event_base()
 			: fd_(-1)
 	{
 	}
 
-	CEventBase::~CEventBase()
+	event_base::~event_base()
 	{
-		Close();
+		close();
 	}
 
-	int32_t CEventBase::Open()
+	int32_t event_base::open()
 	{
 		return (fd_ = eventfd(0, 0)) == -1 ? EEC_ERR : EEC_SUC;
 	}
 
-	int32_t CEventBase::Close()
+	int32_t event_base::close()
 	{
 		if (-1 != fd_)
 		{
@@ -282,17 +282,17 @@ namespace ns_smart_utils
 		return EEC_ERR;
 	}
 
-	uint32_t CEventBase::GetEvents()
+	uint32_t event_base::get_events()
 	{
 		return EPOLLIN;
 	}
 
-	void CEventBase::Notify(uint64_t val)
+	void event_base::notify(uint64_t val)
 	{
 		write(fd_, &val, sizeof(uint64_t));
 	}
 
-	void CEventBase::HandleEvents(uint32_t evts)
+	void event_base::handle_events(uint32_t evts)
 	{
 		SU_ASSERT(EPOLLIN == evts)
 
@@ -304,24 +304,24 @@ namespace ns_smart_utils
 			return;
 		}
 
-		HandleEvent(val);
+		handle_event(val);
 	}
 
-	CSignalBase::CSignalBase(std::vector<int32_t> &&vec)
-			: SignalsVec_(vec)
+	signal_base::signal_base(std::vector<int32_t> &&vec)
+			: signals_(vec)
 	{
 	}
 
-	CSignalBase::~CSignalBase()
+	signal_base::~signal_base()
 	{
 	}
 
-	int32_t CSignalBase::Open()
+	int32_t signal_base::open()
 	{
 		sigset_t mask;
 		sigemptyset(&mask);
-		SU_ASSERT(!SignalsVec_.empty())
-		for (std::vector<int32_t>::iterator iter = SignalsVec_.begin(); iter != SignalsVec_.end(); iter++)
+		SU_ASSERT(!signals_.empty())
+		for (std::vector<int32_t>::iterator iter = signals_.begin(); iter != signals_.end(); iter++)
 		{
 			sigaddset(&mask, *iter);
 			//std::cout<<*iter<<std::endl;
@@ -343,19 +343,19 @@ namespace ns_smart_utils
 		return EEC_SUC;
 	}
 
-	int32_t CSignalBase::Close()
+	int32_t signal_base::close()
 	{
 		SAFE_CLOSE_FD(fd_)
 
 		return EEC_SUC;
 	}
 
-	uint32_t CSignalBase::GetEvents()
+	uint32_t signal_base::get_events()
 	{
 		return EPOLLIN;
 	}
 
-	void CSignalBase::HandleEvents(uint32_t evts)
+	void signal_base::handle_events(uint32_t evts)
 	{
 		//std::cout<<"get signal"<<std::endl;
 		struct signalfd_siginfo fdsi;
@@ -369,7 +369,7 @@ namespace ns_smart_utils
 				break;
 			}
 
-			HandleSignal(fdsi.ssi_signo);
+			handle_signal(fdsi.ssi_signo);
 		}
 	}
 
