@@ -14,7 +14,7 @@
 
 #include "EventNotifier.h"
 
-namespace NSSmartUtils
+namespace ns_smart_utils
 {
 
 	CNotifierEngine::CNotifierEngine()

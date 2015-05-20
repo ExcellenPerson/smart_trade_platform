@@ -9,9 +9,9 @@
 #ifndef RELIABLECAST_RELIABLECAST_H_
 #define RELIABLECAST_RELIABLECAST_H_
 
-#include <Common/Common.h>
+#include <base/base.h>
 
-namespace NSSmartNet
+namespace ns_smart_net
 {
 
 /*
@@ -47,9 +47,9 @@ public:
 	bptr_t GetData();
 
 private:
-	NSSmartUtils::RingBufPtr_t pInternalSendRB_;
-	NSSmartUtils::RingBufPtr_t pInternalRecvRB_;
-	NSSmartUtils::MemPoolPtr_t pMemPool_;
+	ns_smart_utils::RingBufPtr_t pInternalSendRB_;
+	ns_smart_utils::RingBufPtr_t pInternalRecvRB_;
+	ns_smart_utils::MemPoolPtr_t pMemPool_;
 }
 ;
 

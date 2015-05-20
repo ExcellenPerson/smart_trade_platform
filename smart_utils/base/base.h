@@ -22,15 +22,15 @@
 ///common header files...
 #include <cstdint>
 
-#include "Defines.h"
-#include "Types.h"
-#include "Config.h"
+#include <base/Defines.h>
+#include <base/Types.h>
+#include <base/Config.h>
 
-namespace NSSmartUtils
+namespace ns_smart_utils
 {
-	enum EErrCode
+	enum ESmartErrCode
 	{
-		EEC_SUC = 0, EEC_ERR = -1, EEC_REDO_ERR = -2
+		ESEC = 0, ESEC_ERR = -1, ESEC_REDO_ERR = -2
 	};
 
 }

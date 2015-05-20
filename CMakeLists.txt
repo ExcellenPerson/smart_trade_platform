@@ -24,8 +24,8 @@ option(USE_SMART_UTILS_LIB "Use SmartUtils library" ON)
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file (
-  "${PROJECT_SOURCE_DIR}/SmartUtils/Base/Config.h.in"
-  "${PROJECT_SOURCE_DIR}/SmartUtils/Base/Config.h"
+  "${PROJECT_SOURCE_DIR}/SmartUtils/Base/config.h.in"
+  "${PROJECT_SOURCE_DIR}/SmartUtils/Base/config.h"
   )
 
 

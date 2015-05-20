@@ -9,15 +9,15 @@
 #ifndef UTILS_EVENTNOTIFIER_H_
 #define UTILS_EVENTNOTIFIER_H_
 
+#include <base/base.h>
 #include <memory>
 #include <unordered_set>
 #include <vector>
 #include <mutex>
 #include <signal.h>
 
-#include "../Base/Base.h"
 
-namespace NSSmartUtils
+namespace ns_smart_utils
 {
 
 	class IEventNotifier
@@ -39,7 +39,7 @@ namespace NSSmartUtils
 		virtual uint32_t GetEvents() = 0;
 		virtual void HandleEvents(uint32_t evts) = 0;
 	};
-	typedef std::shared_ptr<NSSmartUtils::IEventNotifier> EventNotifierPtr_t;
+	typedef std::shared_ptr<ns_smart_utils::IEventNotifier> EventNotifierPtr_t;
 
 	/**
 	 * timer event handler
@@ -89,7 +89,7 @@ namespace NSSmartUtils
 		int64_t IntervalSeconds_;
 		int64_t IntervalNanos_;
 	};
-	typedef std::shared_ptr<NSSmartUtils::CTimerBase> TimerBasePtr_t;
+	typedef std::shared_ptr<ns_smart_utils::CTimerBase> TimerBasePtr_t;
 
 	/**
 	 *
@@ -119,7 +119,7 @@ namespace NSSmartUtils
 	private:
 		int32_t fd_;
 	};
-	typedef std::shared_ptr<NSSmartUtils::CEventBase> EventBasePtr_t;
+	typedef std::shared_ptr<ns_smart_utils::CEventBase> EventBasePtr_t;
 
 	/**
 	 *
@@ -149,7 +149,7 @@ namespace NSSmartUtils
 		std::vector<int> SignalsVec_;
 		int32_t fd_;
 	};
-	typedef std::shared_ptr<NSSmartUtils::CSignalBase> SignalBasePtr_t;
+	typedef std::shared_ptr<ns_smart_utils::CSignalBase> SignalBasePtr_t;
 
 	/**
 	 *
@@ -175,11 +175,11 @@ namespace NSSmartUtils
 		void CheckOnce(int32_t TimeoutMS = -1);
 	private:
 		///
-		typedef std::unordered_set<NSSmartUtils::EventNotifierPtr_t> EventHandlersSet_t;
+		typedef std::unordered_set<ns_smart_utils::EventNotifierPtr_t> EventHandlersSet_t;
 		EventHandlersSet_t EventHandlersSet_;
 
 		///
-		typedef std::vector<NSSmartUtils::EventNotifierPtr_t> EventHandlersVec_t;
+		typedef std::vector<ns_smart_utils::EventNotifierPtr_t> EventHandlersVec_t;
 		std::mutex EventHandlersAddVecMtx_;
 		EventHandlersVec_t TmpAddEventHandlersVec_;
 		std::mutex EventHandlersRemoveVecMtx_;

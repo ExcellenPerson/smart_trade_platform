@@ -24,6 +24,9 @@ Test project /home/rock/git/STP/CMakeBuild/STPTest
 [rock@localhost STPTest]$ 
 
 
+coding style: follow c++ std library
+
+
 
 
 

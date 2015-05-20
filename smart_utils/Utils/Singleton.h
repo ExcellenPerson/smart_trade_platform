@@ -9,13 +9,13 @@
 #ifndef UTILS_SINGLETON_H_
 #define UTILS_SINGLETON_H_
 
-#include "../Base/Base.h"
+#include <base/base.h>
 
 #if (!__SUPPORT_CPP_11__)
 #error TheRockLHY says this singleton implementation needs C++11!
 #endif
 
-namespace NSSmartUtils
+namespace ns_smart_utils
 {
 
 template<typename T>

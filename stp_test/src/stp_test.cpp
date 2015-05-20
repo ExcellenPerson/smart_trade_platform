@@ -17,7 +17,7 @@ using namespace std;
 #include <Utils/EventNotifier.h>
 #include <Utils/Singleton.h>
 
-class CMyEvent: public NSSmartUtils::CEventBase
+class CMyEvent: public ns_smart_utils::CEventBase
 {
 public:
 	void OnAdded(bool b)
@@ -39,10 +39,10 @@ public:
 
 std::shared_ptr<CMyEvent> ptr11;
 
-class CMyTimerHandler: public NSSmartUtils::CTimerBase
+class CMyTimerHandler: public ns_smart_utils::CTimerBase
 {
 public:
-	CMyTimerHandler(const NSSmartUtils::CTimerBase::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+	CMyTimerHandler(const ns_smart_utils::CTimerBase::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
 			: CTimerBase(timer_type, interval_seconds, interval_nanos)
 	{
 	}
@@ -70,7 +70,7 @@ public:
 
 };
 
-NSSmartUtils::CNotifierEngine tms;
+ns_smart_utils::CNotifierEngine tms;
 
 void f()
 {
@@ -80,7 +80,7 @@ void f()
 	}
 }
 
-class CMySignalHandler: public NSSmartUtils::CSignalBase
+class CMySignalHandler: public ns_smart_utils::CSignalBase
 {
 public:
 	CMySignalHandler(std::vector<int32_t> & vec)
@@ -108,21 +108,21 @@ public:
 
 int main()
 {
-	NSSmartUtils::CSingleton<int>::GetInst() = 12345;
-	std::cout << "value: " << NSSmartUtils::CSingleton<int>::GetInst() << std::endl;
+	ns_smart_utils::CSingleton<int>::GetInst() = 12345;
+	std::cout << "value: " << ns_smart_utils::CSingleton<int>::GetInst() << std::endl;
 
-	std::shared_ptr < NSSmartUtils::CTimerBase > ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_REALTIME, 1, 1);
+	std::shared_ptr < ns_smart_utils::CTimerBase > ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::CTimerBase::ETimerType::ETT_REALTIME, 1, 1);
 	ptr->Open();
 	tms.Open();
 
-	NSSmartUtils::EventNotifierPtr_t p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
+	ns_smart_utils::EventNotifierPtr_t p = static_pointer_cast<ns_smart_utils::IEventNotifier, ns_smart_utils::CTimerBase>(ptr);
 	tms.AsyncAddEvent(p);
 
 	//std::thread t(f);
 
 	///test signal
 	std::vector<int32_t> vec = {SIGINT, SIGQUIT};
-	NSSmartUtils::EventNotifierPtr_t pSignal = std::make_shared < CMySignalHandler > (vec);
+	ns_smart_utils::EventNotifierPtr_t pSignal = std::make_shared < CMySignalHandler > (vec);
 	pSignal->Open();
 	tms.AsyncAddEvent(pSignal);
 
@@ -130,7 +130,7 @@ int main()
 
 	ptr11 = std::make_shared<CMyEvent>();
 	ptr11->Open();
-	NSSmartUtils::EventNotifierPtr_t ppp = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CEventBase>(ptr11);
+	ns_smart_utils::EventNotifierPtr_t ppp = static_pointer_cast<ns_smart_utils::IEventNotifier, ns_smart_utils::CEventBase>(ptr11);
 	tms.AsyncAddEvent(ppp);
 
 	ptr = nullptr;
@@ -139,19 +139,19 @@ int main()
 
 	//std::this_thread::sleep_for(10s);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_MONOTONIC, 2, 1);
+	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::CTimerBase::ETimerType::ETT_MONOTONIC, 2, 1);
 
-	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
+	p = static_pointer_cast<ns_smart_utils::IEventNotifier, ns_smart_utils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_REALTIME, 3, 1);
-	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::CTimerBase::ETimerType::ETT_REALTIME, 3, 1);
+	p = static_pointer_cast<ns_smart_utils::IEventNotifier, ns_smart_utils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (NSSmartUtils::CTimerBase::ETimerType::ETT_MONOTONIC, 5, 1);
-	p = static_pointer_cast<NSSmartUtils::IEventNotifier, NSSmartUtils::CTimerBase>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::CTimerBase::ETimerType::ETT_MONOTONIC, 5, 1);
+	p = static_pointer_cast<ns_smart_utils::IEventNotifier, ns_smart_utils::CTimerBase>(ptr);
 	ptr->Open();
 	tms.AsyncAddEvent(p);
 
