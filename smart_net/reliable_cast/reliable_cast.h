@@ -51,14 +51,13 @@ namespace ns_smart_net
 		~net_endpoint();
 
 	public:
-		int32_t set_data(iovec_t &iov);///not thread-safe, only allow one setter
+		int32_t set_data(iovec_t &iov); ///not thread-safe, only allow one setter
 		iovec_t& get_data();
 
 	private:
 		smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t output_ringbuf_;
 		smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t input_ringbuf_;
-	}
-	;
+	};
 
 } /* namespace NSSmartNet */
 

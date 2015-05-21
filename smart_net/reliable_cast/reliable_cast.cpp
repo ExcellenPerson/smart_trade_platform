@@ -20,12 +20,6 @@ namespace
 {
 	using namespace smart_utils;
 
-	const size_t IPV4_ADDR_NUM_LEN = 4;
-	const size_t IPV6_ADDR_NUM_LEN = 16;
-
-	typedef std::vector<byte_t> ip_addr_t;
-	typedef std::vector<ip_addr_t> ip_addr_list_t;
-
 	int32_t is_multicast_addr(const struct sockaddr &sa/*network byte order*/)
 	{
 		int ret = EC_SUC;
