@@ -14,7 +14,7 @@
 
 #include <utils/notifiers.h>
 
-namespace ns_smart_utils
+namespace smart_utils
 {
 
 	notifier_engine::notifier_engine()

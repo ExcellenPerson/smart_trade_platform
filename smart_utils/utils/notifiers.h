@@ -17,7 +17,7 @@
 #include <signal.h>
 
 
-namespace ns_smart_utils
+namespace smart_utils
 {
 
 	class notifier
@@ -40,7 +40,7 @@ namespace ns_smart_utils
 		virtual uint32_t get_events() = 0;
 		virtual void handle_events(uint32_t evts) = 0;
 	};
-	typedef std::shared_ptr<ns_smart_utils::notifier> notifier_ptr_t;
+	typedef std::shared_ptr<smart_utils::notifier> notifier_ptr_t;
 
 	/**
 	 * timer event handler
@@ -90,7 +90,7 @@ namespace ns_smart_utils
 		int64_t interval_s_;
 		int64_t interval_ns_;
 	};
-	typedef std::shared_ptr<ns_smart_utils::timer_base> timer_base_ptr_t;
+	typedef std::shared_ptr<smart_utils::timer_base> timer_base_ptr_t;
 
 	/**
 	 *
@@ -120,7 +120,7 @@ namespace ns_smart_utils
 	private:
 		int32_t fd_;
 	};
-	typedef std::shared_ptr<ns_smart_utils::event_base> evnet_base_ptr_t;
+	typedef std::shared_ptr<smart_utils::event_base> evnet_base_ptr_t;
 
 	/**
 	 *
@@ -150,7 +150,7 @@ namespace ns_smart_utils
 		std::vector<int> signals_;
 		int32_t fd_;
 	};
-	typedef std::shared_ptr<ns_smart_utils::signal_base> signal_base_ptr_t;
+	typedef std::shared_ptr<smart_utils::signal_base> signal_base_ptr_t;
 
 	/**
 	 *
@@ -176,11 +176,11 @@ namespace ns_smart_utils
 		void check_once(int32_t TimeoutMS = -1);
 	private:
 		///
-		typedef std::unordered_set<ns_smart_utils::notifier_ptr_t> notifiers_t;
+		typedef std::unordered_set<smart_utils::notifier_ptr_t> notifiers_t;
 		notifiers_t notifiers_;
 
 		///
-		typedef std::vector<ns_smart_utils::notifier_ptr_t> tmp_notifiers_t;
+		typedef std::vector<smart_utils::notifier_ptr_t> tmp_notifiers_t;
 		std::mutex tmp_notifier_add_mtx_;
 		tmp_notifiers_t tmp_add_notifiers_;
 		std::mutex tmp_notifier_remove_mtx_;

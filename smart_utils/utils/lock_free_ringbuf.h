@@ -13,7 +13,7 @@
 #include <vector>
 #include "../base/base.h"
 
-namespace ns_smart_utils
+namespace smart_utils
 {
 	template <typename T>
 	class lock_free_ringbuf
@@ -28,6 +28,6 @@ namespace ns_smart_utils
 		virtual ~lock_free_ringbuf();
 	};
 
-} /* namespace ns_smart_utils */
+} /* namespace smart_utils */
 
 #endif /* UTILS_LOCKFREERINGBUF_H_ */

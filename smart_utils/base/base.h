@@ -26,7 +26,7 @@
 #include "types.h"
 #include "config.h"
 
-namespace ns_smart_utils
+namespace smart_utils
 {
 	enum error_code
 	{

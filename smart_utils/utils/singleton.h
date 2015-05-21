@@ -15,7 +15,7 @@
 #error TheRockLHY says this singleton implementation needs C++11!
 #endif
 
-namespace ns_smart_utils
+namespace smart_utils
 {
 
 	/**

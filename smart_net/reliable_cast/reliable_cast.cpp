@@ -12,12 +12,13 @@
 #include <errno.h>
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
+//#include <unistd.h>
+//#include <fcntl.h>
 #include <netdb.h>
-#include <vector>
 
 namespace
 {
-	using namespace ns_smart_utils;
+	using namespace smart_utils;
 
 	const size_t IPV4_ADDR_NUM_LEN = 4;
 	const size_t IPV6_ADDR_NUM_LEN = 16;
@@ -25,41 +26,72 @@ namespace
 	typedef std::vector<byte_t> ip_addr_t;
 	typedef std::vector<ip_addr_t> ip_addr_list_t;
 
-	int32_t join_multicast_group(int32_t sock, const int32_t local_bind_ifx_idx, const uint32_t local_bind_addr, const ip_addr_t &multicast_ip_addr)
+	int32_t is_multicast_addr(const struct sockaddr &sa/*network byte order*/)
 	{
-		if (-1 == sock)
+		int ret = EC_SUC;
+		switch (sa.sa_family)
+		{
+			case AF_INET:
+			{
+				struct sockaddr_in s4;
+				memcpy(&s4, &sa, sizeof(s4));
+				ret = (IN_MULTICAST(ntohl(s4.sin_addr.s_addr))) ? EC_SUC : EC_ERR;
+				break;
+			}
+			case AF_INET6:
+			{
+				struct sockaddr_in6 s6;
+				memcpy(&s6, &sa, sizeof(s6));
+				ret = (IN6_IS_ADDR_MULTICAST(&s6.sin6_addr)) ? EC_SUC : EC_ERR;
+				break;
+			}
+			default:
+			{
+				ret = EC_ERR;
+				break;
+			}
+		}
+
+		return ret;
+	}
+
+	enum join_or_leave
+	{
+		JOL_NONE = -1, JOL_JOIN = 0, JOL_LEAVE = 1
+	};
+
+	int32_t set_multicast_group(int32_t sock, const int32_t local_bind_ifx_idx, const in_addr_t local_bind_addr/*net byte order*/, struct sockaddr &multicast_ip_addr/*network byte order*/,
+			const join_or_leave jol)
+	{
+
+		if (-1 == sock || (JOL_JOIN != jol && JOL_LEAVE != jol) || (EC_SUC != is_multicast_addr(multicast_ip_addr)))
 		{
 			SU_ASSERT(false)
-			return EC_SUC;
+			return EC_ERR;
 		}
 
 		int32_t ret = EC_SUC;
-		switch (multicast_ip_addr.size())
+		switch (multicast_ip_addr.sa_family)
 		{
-			case IPV4_ADDR_NUM_LEN:
+			case AF_INET:
 			{
-//				if (addr_family_ != AF_INET)
-//					return ERR_ADDRESS_INVALID;
 				ip_mreqn mreq;
 				mreq.imr_ifindex = local_bind_ifx_idx;
-				mreq.imr_address.s_addr = htonl(local_bind_addr);
-				memcpy(&mreq.imr_multiaddr, &multicast_ip_addr[0], IPV4_ADDR_NUM_LEN);
-				if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
+				mreq.imr_address.s_addr = local_bind_addr;
+				memcpy(&mreq.imr_multiaddr, &((*(reinterpret_cast<struct sockaddr_in*>(&multicast_ip_addr))).sin_addr.s_addr), sizeof(mreq.imr_multiaddr));
+				if (setsockopt(sock, IPPROTO_IP, JOL_JOIN == jol ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
 				{
 					ret = errno;
 				}
 
 				break;
 			}
-			case IPV6_ADDR_NUM_LEN:
+			case AF_INET6:
 			{
-//				if (addr_family_ != AF_INET6)
-//					return ERR_ADDRESS_INVALID;
-
 				ipv6_mreq mreq;
 				mreq.ipv6mr_interface = local_bind_ifx_idx;
-				memcpy(&mreq.ipv6mr_multiaddr, &multicast_ip_addr[0], IPV6_ADDR_NUM_LEN);
-				if (setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq)) < 0)
+				memcpy(&mreq.ipv6mr_multiaddr, &((*(reinterpret_cast<struct sockaddr_in6*>(&multicast_ip_addr))).sin6_addr), sizeof(mreq.ipv6mr_multiaddr));
+				if (setsockopt(sock, IPPROTO_IPV6, JOL_JOIN == jol ? IPV6_JOIN_GROUP : IPV6_LEAVE_GROUP, &mreq, sizeof(mreq)) < 0)
 				{
 					ret = errno;
 				}
@@ -77,581 +109,6 @@ namespace
 	}
 
 #if 0
-int UDPSocketLibevent::LeaveGroup(const IPAddressNumber& group_address) const
-{
-	DCHECK (CalledOnValidThread());
-
-	if (!is_connected())
-	return ERR_SOCKET_NOT_CONNECTED;
-
-	switch (group_address.size())
-	{
-		case kIPv4AddressSize:
-		{
-			if (addr_family_ != AF_INET)
-			return ERR_ADDRESS_INVALID;
-			ip_mreq mreq;
-			mreq.imr_interface.s_addr = INADDR_ANY;
-			memcpy(&mreq.imr_multiaddr, &group_address[0], kIPv4AddressSize);
-			int rv = setsockopt(socket_, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq));
-			if (rv < 0)
-			return MapSystemError(errno);
-			return OK;
-		}
-		case kIPv6AddressSize:
-		{
-			if (addr_family_ != AF_INET6)
-			return ERR_ADDRESS_INVALID;
-			ipv6_mreq mreq;
-			mreq.ipv6mr_interface = 0;  // 0 indicates default multicast interface.
-			memcpy(&mreq.ipv6mr_multiaddr, &group_address[0], kIPv6AddressSize);
-			int rv = setsockopt(socket_, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq));
-			if (rv < 0)
-			return MapSystemError(errno);
-			return OK;
-		}
-		default:
-		NOTREACHED() << "Invalid address family";
-		return ERR_ADDRESS_INVALID;
-	}
-}
-#endif
-
-#if 0
-static uint8_t pgm_in_mask2len(const struct in_addr*);
-static uint8_t pgm_in6_mask2len(const struct in6_addr*);
-static void pgm_in_len2mask(const uint8_t, struct in_addr*);
-
-PGM_GNUC_INTERNAL sa_family_t
-pgm_sockaddr_family (
-		const struct sockaddr* sa
-)
-{
-	return sa->sa_family;
-}
-
-PGM_GNUC_INTERNAL in_port_t
-pgm_sockaddr_port (
-		const struct sockaddr* sa
-)
-{
-	in_port_t sa_port;
-	switch (sa->sa_family)
-	{
-		case AF_INET:
-		{
-			struct sockaddr_in s4;
-			memcpy (&s4, sa, sizeof(s4));
-			sa_port = s4.sin_port;
-			break;
-		}
-
-		case AF_INET6:
-		{
-			struct sockaddr_in6 s6;
-			memcpy (&s6, sa, sizeof(s6));
-			sa_port = s6.sin6_port;
-			break;
-		}
-
-		default:
-		sa_port = 0;
-		break;
-	}
-	return sa_port;
-}
-
-PGM_GNUC_INTERNAL socklen_t
-pgm_sockaddr_len (
-		const struct sockaddr* sa
-)
-{
-	socklen_t sa_len;
-	switch (sa->sa_family)
-	{
-		case AF_INET: sa_len = sizeof(struct sockaddr_in); break;
-		case AF_INET6: sa_len = sizeof(struct sockaddr_in6); break;
-		default: sa_len = 0; break;
-	}
-	return sa_len;
-}
-
-PGM_GNUC_INTERNAL socklen_t
-pgm_sockaddr_storage_len (
-		const struct sockaddr_storage* ss
-)
-{
-	socklen_t ss_len;
-	switch (ss->ss_family)
-	{
-		case AF_INET: ss_len = sizeof(struct sockaddr_in); break;
-		case AF_INET6: ss_len = sizeof(struct sockaddr_in6); break;
-		default: ss_len = 0; break;
-	}
-	return ss_len;
-}
-
-static uint8_t pgm_in_mask2len(const struct in_addr* mask)
-{
-	unsigned x, y;
-	const uint8_t* p;
-
-	p = (const uint8_t*) mask;
-	for (x = 0; x < sizeof(*mask); x++)
-	{
-		if (p[x] != 0xff)
-		break;
-	}
-	y = 0;
-	if (x < sizeof(*mask))
-	{
-		for (y = 0; y < 8; y++)
-		{
-			if ((p[x] & (0x80 >> y)) == 0)
-			break;
-		}
-	}
-	return x * 8 + y;
-}
-
-static uint8_t pgm_in6_mask2len(const struct in6_addr* mask)
-{
-	unsigned x, y;
-	const uint8_t* p;
-
-	p = (const uint8_t*) mask;
-	for (x = 0; x < sizeof(*mask); x++)
-	{
-		if (p[x] != 0xff)
-		break;
-	}
-	y = 0;
-	if (x < sizeof(*mask))
-	{
-		for (y = 0; y < 8; y++)
-		{
-			if ((p[x] & (0x80 >> y)) == 0)
-			break;
-		}
-	}
-	return x * 8 + y;
-}
-
-PGM_GNUC_INTERNAL uint8_t
-pgm_sockaddr_prefixlen (
-		const struct sockaddr* sa
-)
-{
-	if (AF_INET6 == sa->sa_family)
-	{
-		struct sockaddr_in6 s6;
-		memcpy (&s6, sa, sizeof(s6));
-		return pgm_in6_mask2len (&s6.sin6_addr);
-	}
-	else
-	{
-		struct sockaddr_in s4;
-		memcpy (&s4, sa, sizeof(s4));
-		return pgm_in_mask2len (&s4.sin_addr);
-	}
-}
-
-static
-void pgm_in_len2mask(const uint8_t prefixlen, struct in_addr* mask)
-{
-	unsigned i;
-	uint8_t * p;
-
-	p = (uint8_t*) mask;
-	memset(mask, sizeof(*mask), 0);
-	for (i = 0; i < prefixlen / 8; i++)
-	p[i] = 0xff;
-	if (prefixlen % 8)
-	p[i] = (0xff00 >> (prefixlen % 8)) & 0xff;
-}
-
-PGM_GNUC_INTERNAL uint32_t
-pgm_sockaddr_scope_id (
-		const struct sockaddr* sa
-)
-{
-	uint32_t scope_id;
-	if (AF_INET6 == sa->sa_family)
-	{
-		struct sockaddr_in6 s6;
-		memcpy (&s6, sa, sizeof(s6));
-		scope_id = s6.sin6_scope_id;
-	}
-	else
-	scope_id = 0;
-	return scope_id;
-}
-
-PGM_GNUC_INTERNAL
-int
-pgm_sockaddr_ntop (
-		const struct sockaddr* restrict sa,
-		char* restrict host,
-		size_t hostlen
-)
-{
-	return getnameinfo (sa, pgm_sockaddr_len (sa),
-			host, hostlen,
-			NULL, 0,
-			NI_NUMERICHOST);
-}
-
-PGM_GNUC_INTERNAL
-int
-pgm_sockaddr_pton (
-		const char* restrict src,
-		struct sockaddr* restrict dst /* will error on wrong size */
-)
-{
-	struct addrinfo hints =
-	{
-		.ai_family = AF_UNSPEC,
-		.ai_socktype = SOCK_STREAM, /* not really */
-		.ai_protocol = IPPROTO_TCP, /* not really */
-		.ai_flags = AI_NUMERICHOST
-	}, *result = NULL;
-	const int status = getaddrinfo (src, NULL, &hints, &result);
-	if (PGM_LIKELY(0 == status))
-	{
-		memcpy (dst, result->ai_addr, result->ai_addrlen);
-		freeaddrinfo (result);
-		return 1;
-	}
-	return 0;
-}
-
-/* returns tri-state value: 1 if sa is multicast, 0 if sa is not multicast, -1 on error
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_is_addr_multicast(const struct sockaddr* sa)
-{
-	int retval;
-
-	switch (sa->sa_family)
-	{
-		case AF_INET:
-		{
-			struct sockaddr_in s4;
-			memcpy(&s4, sa, sizeof(s4));
-			retval = IN_MULTICAST(ntohl(s4.sin_addr.s_addr));
-			break;
-		}
-
-		case AF_INET6:
-		{
-			struct sockaddr_in6 s6;
-			memcpy(&s6, sa, sizeof(s6));
-			retval = IN6_IS_ADDR_MULTICAST(&s6.sin6_addr);
-			break;
-		}
-
-		default:
-		retval = -1;
-		break;
-	}
-	return retval;
-}
-
-/* returns 1 if sa is unspecified, 0 if specified.
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_is_addr_unspecified(const struct sockaddr* sa)
-{
-	int retval;
-
-	switch (sa->sa_family)
-	{
-		case AF_INET:
-		{
-			struct sockaddr_in s4;
-			memcpy(&s4, sa, sizeof(s4));
-			retval = (INADDR_ANY == s4.sin_addr.s_addr);
-			break;
-		}
-
-		case AF_INET6:
-		{
-			struct sockaddr_in6 s6;
-			memcpy(&s6, sa, sizeof(s6));
-			retval = IN6_IS_ADDR_UNSPECIFIED(&s6.sin6_addr);
-			break;
-		}
-
-		default:
-		retval = -1;
-		break;
-	}
-	return retval;
-}
-
-PGM_GNUC_INTERNAL
-int
-pgm_sockaddr_cmp (
-		const struct sockaddr* restrict sa1,
-		const struct sockaddr* restrict sa2
-)
-{
-	int retval = 0;
-
-	if (sa1->sa_family != sa2->sa_family)
-	retval = sa1->sa_family < sa2->sa_family ? -1 : 1;
-	else
-	{
-		switch (sa1->sa_family)
-		{
-			case AF_INET:
-			{
-				struct sockaddr_in sa1_in, sa2_in;
-				memcpy (&sa1_in, sa1, sizeof(sa1_in));
-				memcpy (&sa2_in, sa2, sizeof(sa2_in));
-				if (sa1_in.sin_addr.s_addr != sa2_in.sin_addr.s_addr)
-				retval = sa1_in.sin_addr.s_addr < sa2_in.sin_addr.s_addr ? -1 : 1;
-				break;
-			}
-
-			/* IN6_ARE_ADDR_EQUAL(a,b) only returns true or false, i.e. insufficient for sorting.
-			 */
-			case AF_INET6:
-			{
-				struct sockaddr_in6 sa1_in6, sa2_in6;
-				memcpy (&sa1_in6, sa1, sizeof(sa1_in6));
-				memcpy (&sa2_in6, sa2, sizeof(sa2_in6));
-				retval = memcmp (&sa1_in6.sin6_addr, &sa2_in6.sin6_addr, sizeof(struct in6_addr));
-				if (0 == retval && sa1_in6.sin6_scope_id != sa2_in6.sin6_scope_id)
-				retval = sa1_in6.sin6_scope_id < sa2_in6.sin6_scope_id ? -1 : 1;
-				break;
-			}
-
-			default:
-			break;
-		}
-	}
-	return retval;
-}
-
-/* IP header included with data.
- *
- * If no error occurs, pgm_sockaddr_hdrincl returns zero.  Otherwise, a value
- * of SOCKET_ERROR is returned, and a specific error code can be retrieved
- * by calling pgm_get_last_sock_error().
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_hdrincl(const SOCKET s, const sa_family_t sa_family, const bool v)
-{
-	int retval = SOCKET_ERROR;
-
-	switch (sa_family)
-	{
-		case AF_INET:
-		{
-#ifndef _WIN32
-			/* Solaris:ip(7P)  Mentioned but not detailed.
-			 *
-			 * Linux:ip(7) "A boolean integer flag is zero when it is false, otherwise
-			 * true.  If enabled, the user supplies an IP header in front of the user
-			 * data."  Mentions only send-side, nothing about receive-side.
-			 * Linux:raw(7) "For receiving the IP header is always included in the packet."
-			 *
-			 * FreeBSD,OS X:IP(4) provided by example "int hincl = 1;"
-			 *
-			 * Stevens: "IP_HDRINCL has datatype int."
-			 */
-			const int optval = v ? 1 : 0;
-#else
-			/* WinSock2:MSDN(IPPROTO_IP Socket Options) "DWORD (boolean)"
-			 */
-			const DWORD optval = v ? 1 : 0;
-#endif
-			retval = setsockopt(s, IPPROTO_IP, IP_HDRINCL, (const char*) &optval, sizeof(optval));
-			break;
-		}
-
-		case AF_INET6:
-		/* method only exists with Windows Sockets 2, just ignore.
-		 */
-		retval = 0;
-		break;
-
-		default:
-		break;
-	}
-	return retval;
-}
-
-/* Return destination IP address.
- *
- * If no error occurs, pgm_sockaddr_pktinfo returns zero.  Otherwise, a value
- * of SOCKET_ERROR is returned, and a specific error code can be retrieved
- * by calling pgm_get_last_sock_error().
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_pktinfo(const SOCKET s, const sa_family_t sa_family, const bool v)
-{
-	int retval = SOCKET_ERROR;
-#ifndef _WIN32
-	/* Solaris:ip(7P) "The following options take in_pktinfo_t as the parameter"
-	 * Completely different, although ip6(7P) is a little better, "The following
-	 * options are boolean switches controlling the reception of ancillary data"
-	 *
-	 * Linux:ip(7) "A boolean integer flag is zero when it is false, otherwise
-	 * true.  The argument is a flag that tells the socket whether the IP_PKTINFO
-	 * message should be passed or not."
-	 * Linux:ipv6(7) Not listed, however IPV6_PKTINFO is with "Argument is a pointer
-	 * to a boolean value in an integer."
-	 *
-	 * Absent from FreeBSD & OS X, suggested replacement IP_RECVDSTADDR.
-	 * OS X:IP6(4) "IPV6_PKTINFO int *"
-	 *
-	 * Stevens: "IP_RECVDSTADDR has datatype int."
-	 */
-	const int optval = v ? 1 : 0;
-#else
-	/* WinSock2:MSDN(IPPROTO_IP Socket Options) "DWORD"
-	 * Also, typo in article shows only support for getsockopt() and not setsockopt().
-	 * Also, Windows 7 introduces IP_ORIGINAL_ARRIVAL_IF for subset of CMSG data, but usage is
-	 * designed for IPv4 NAT firewalling and tunneling but not native IPv6.
-	 */
-	const DWORD optval = v ? 1 : 0;
-#endif
-
-	switch (sa_family)
-	{
-		case AF_INET:
-		/* MSVC100 defines IP_RECVDSTADDR but is not supported by Windows XP, Windows 7 is functional.
-		 * No reference is available on MSDN.
-		 */
-#if !defined(_WIN32) && defined(IP_RECVDSTADDR)
-		retval = setsockopt (s, IPPROTO_IP, IP_RECVDSTADDR, (const char*)&optval, sizeof(optval));
-#else
-		retval = setsockopt(s, IPPROTO_IP, IP_PKTINFO, (const char*) &optval, sizeof(optval));
-#endif
-		break;
-
-		case AF_INET6:
-		/* MSVC does not currently define IPV6_RECVPKTINFO, verify each new SDK release.
-		 */
-#ifdef IPV6_RECVPKTINFO
-		retval = setsockopt(s, IPPROTO_IPV6, IPV6_RECVPKTINFO, (const char*) &optval, sizeof(optval));
-#else
-		retval = setsockopt (s, IPPROTO_IPV6, IPV6_PKTINFO, (const char*)&optval, sizeof(optval));
-#endif
-		break;
-
-		default:
-		break;
-	}
-	return retval;
-}
-
-/* Set IP Router Alert option for all outgoing packets.
- *
- * If no error occurs, pgm_sockaddr_router_alert returns zero.  Otherwise, a
- * value of SOCKET_ERROR is returned, and a specific error code can be
- * retrieved by calling pgm_get_last_sock_error().
- *
- * The IP_ROUTER_ALERT option is not applicable here despite the name, it is
- * for signaling a locally running router and does not alter the IP header of
- * transmitted packets.
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_router_alert(const SOCKET s, const sa_family_t sa_family, const bool v)
-{
-	int retval = SOCKET_ERROR;
-
-#if defined( HAVE_STRUCT_IPOPTION )
-	/* NB: struct ipoption is not very portable and requires a lot of additional headers.
-	 */
-	const struct ipoption router_alert =
-	{
-		.ipopt_dst = 0,
-		.ipopt_list =
-		{	PGM_IPOPT_RA, 0x04, 0x00, 0x00}
-	};
-	const int optlen = v ? sizeof (router_alert) : 0;
-#else
-	/* manually set the IP option */
-#	ifndef _WIN32
-	const uint32_t ipopt_ra = ((uint32_t) PGM_IPOPT_RA << 24) | (0x04 << 16);
-	const uint32_t router_alert = htonl(ipopt_ra);
-#	else
-	const DWORD ipopt_ra = ((DWORD)PGM_IPOPT_RA << 24) | (0x04 << 16);
-	const DWORD router_alert = htonl (ipopt_ra);
-#	endif
-	const int optlen = v ? sizeof(router_alert) : 0;
-#endif
-
-	switch (sa_family)
-	{
-		case AF_INET:
-		/* Linux:ip(7) "The maximum option size for IPv4 is 40 bytes."
-		 *
-		 * WinSock2:MSDN(IPPROTO_IP Socket Options) "char []"
-		 */
-		retval = setsockopt(s, IPPROTO_IP, IP_OPTIONS, (const char*) &router_alert, optlen);
-		break;
-
-		default:
-		break;
-	}
-	return retval;
-}
-
-/* Type-of-service and precedence.
- *
- * If no error occurs, pgm_sockaddr_tos returns zero.  Otherwise, a value of
- * SOCKET_ERROR is returned, and a specific error code can be retrieved by
- * calling pgm_get_last_sock_error().
- */
-
-PGM_GNUC_INTERNAL
-int pgm_sockaddr_tos(const SOCKET s, const sa_family_t sa_family, const int tos)
-{
-	int retval = SOCKET_ERROR;
-
-	switch (sa_family)
-	{
-		case AF_INET:
-		{
-#ifndef _WIN32
-			/* Solaris:ip(7P) "This option takes an integer argument as its input value."
-			 *
-			 * Linux:ip(7) "TOS is a byte."
-			 *
-			 * FreeBSD,OS X:IP(4) provided by example "int tos = IPTOS_LOWDELAY;"
-			 *
-			 * Stevens: "IP_TOS has datatype int."
-			 */
-			const int optval = tos;
-#else
-			/* WinSock2:MSDN(IPPROTO_IP Socket Options) "DWORD (boolean) Do not use."
-			 * IP_TOS only works on WinSock2 with system override, listed support Windows 2000-only:
-			 * http://support.microsoft.com/kb/248611
-			 * Recommended APIs: GQoS (IPv4 only), qWAVE QOS (Vista+)
-			 */
-			const DWORD optval = tos;
-#endif
-			retval = setsockopt(s, IPPROTO_IP, IP_TOS, (const char*) &optval, sizeof(optval));
-			break;
-		}
-
-		case AF_INET6: /* TRAFFIC_CLASS not implemented */
-		break;
-
-		default:
-		break;
-	}
-	return retval;
-}
 
 /* Join multicast group.
  * NB: IPV6_JOIN_GROUP == IPV6_ADD_MEMBERSHIP
