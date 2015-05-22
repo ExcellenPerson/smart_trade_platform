@@ -6,14 +6,22 @@
 // Description : SmartEngine
 //============================================================================
 
-#ifndef TRADEENGINE_H_
-#define TRADEENGINE_H_
+#ifndef TRADE_ENGINE_H_
+#define TRADE_ENGINE_H_
 
 namespace smart_engine
 {
+	enum trade_direction
+	{
+		TD_NONE = -1,
+		TD_BID = 0,
+		TD_ASK = 1
+	};
+
 	class trade_kernel
 	{
 	public:
+		int32_t run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt)
 
 	};
 
@@ -26,4 +34,4 @@ namespace smart_engine
 
 } /* namespace smart_engine */
 
-#endif /* TRADEENGINE_H_ */
+#endif /* TRADE_ENGINE_H_ */
