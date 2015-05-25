@@ -15,7 +15,7 @@ namespace smart_engine
 	{
 		TD_NONE = -1,
 		TD_BID = 0,
-		TD_ASK = 1
+		TD_OFFER = 1
 	};
 
 	class trade_kernel
