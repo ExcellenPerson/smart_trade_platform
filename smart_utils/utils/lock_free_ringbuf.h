@@ -21,7 +21,7 @@ namespace smart_utils
 		DISABLE_COPY(lock_free_ringbuf)
 		DISABLE_MOVE(lock_free_ringbuf)
 	public:
-		typedef typename std::shared_ptr<lock_free_ringbuf<T> > shared_ptr_t;
+		typedef typename std::shared_ptr<lock_free_ringbuf<T> > pointer_t;
 
 	public:
 		lock_free_ringbuf();
