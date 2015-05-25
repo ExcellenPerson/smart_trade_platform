@@ -24,7 +24,7 @@ namespace smart_utils
 		typedef typename std::shared_ptr<lock_free_ringbuf<T> > shared_ptr_t;
 
 	public:
-		lock_free_ringbuf();
+		explicit lock_free_ringbuf();
 		virtual ~lock_free_ringbuf();
 	};
 
