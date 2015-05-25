@@ -26,7 +26,7 @@ namespace smart_utils
 	{
 	}
 
-	void notifier_engine::async_add_notifier(notifier_ptr_t& pEvtHandler)
+	void notifier_engine::async_add_notifier(notifier::pointer_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(tmp_notifier_add_mtx_);
 		if (!is_opened())
@@ -37,7 +37,7 @@ namespace smart_utils
 		tmp_add_notifiers_.push_back(pEvtHandler);
 	}
 
-	void notifier_engine::async_remove_notifier(notifier_ptr_t& pEvtHandler)
+	void notifier_engine::async_remove_notifier(notifier::pointer_t& pEvtHandler)
 	{
 		std::lock_guard < std::mutex > lock(tmp_notifier_remove_mtx_);
 		if (!is_opened())
@@ -59,7 +59,7 @@ namespace smart_utils
 
 		if (!tmp_remove_notifiers_.empty())
 		{
-			std::vector<notifier_ptr_t> TmpVec;
+			std::vector<notifier::pointer_t> TmpVec;
 
 			{
 				std::lock_guard < std::mutex > lock(tmp_notifier_remove_mtx_);
@@ -181,7 +181,7 @@ namespace smart_utils
 
 	int32_t timer_base::close()
 	{
-		SU_ASSERT(-1 == !fd_)
+		SU_ASSERT(-1 == fd_)
 		::close(fd_);
 		fd_ = -1;
 

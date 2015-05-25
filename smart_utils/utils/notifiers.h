@@ -16,12 +16,14 @@
 #include <mutex>
 #include <signal.h>
 
-
 namespace smart_utils
 {
 
 	class notifier
 	{
+	public:
+		typedef std::shared_ptr<smart_utils::notifier> pointer_t;
+
 	public:
 		notifier()
 		{
@@ -40,7 +42,6 @@ namespace smart_utils
 		virtual uint32_t get_events() = 0;
 		virtual void handle_events(uint32_t evts) = 0;
 	};
-	typedef std::shared_ptr<smart_utils::notifier> notifier_ptr_t;
 
 	/**
 	 * timer event handler
@@ -49,6 +50,9 @@ namespace smart_utils
 	{
 		DISABLE_COPY(timer_base)
 		DISABLE_MOVE(timer_base)
+
+	public:
+		typedef std::shared_ptr<smart_utils::timer_base> pointer_t;
 
 	public:
 		enum ETimerType
@@ -90,7 +94,6 @@ namespace smart_utils
 		int64_t interval_s_;
 		int64_t interval_ns_;
 	};
-	typedef std::shared_ptr<smart_utils::timer_base> timer_base_ptr_t;
 
 	/**
 	 *
@@ -100,6 +103,10 @@ namespace smart_utils
 	{
 		DISABLE_COPY(event_base)
 		DISABLE_MOVE(event_base)
+
+	public:
+		typedef std::shared_ptr<smart_utils::event_base> pointer_t;
+
 	public:
 		explicit event_base();
 		virtual ~event_base();
@@ -130,6 +137,10 @@ namespace smart_utils
 	{
 		DISABLE_COPY(signal_base)
 		//DISABLE_MOVE(CSignalBase)
+
+	public:
+		typedef std::shared_ptr<smart_utils::signal_base> pointer_t;
+
 	public:
 		explicit signal_base(std::vector<int32_t> &&vec);
 		virtual ~signal_base();
@@ -160,6 +171,10 @@ namespace smart_utils
 	{
 		DISABLE_COPY(notifier_engine)
 		DISABLE_MOVE(notifier_engine)
+
+	public:
+		typedef std::shared_ptr<smart_utils::notifier_engine> pointer_t;
+
 	public:
 		notifier_engine();
 		~notifier_engine();
@@ -171,16 +186,16 @@ namespace smart_utils
 		int32_t close();
 		///
 		bool is_opened();
-		void async_add_notifier(notifier_ptr_t &pEvtHandler);
-		void async_remove_notifier(notifier_ptr_t &pEvtHandler);
+		void async_add_notifier(notifier::pointer_t &pEvtHandler);
+		void async_remove_notifier(notifier::pointer_t &pEvtHandler);
 		void check_once(int32_t TimeoutMS = -1);
 	private:
 		///
-		typedef std::unordered_set<smart_utils::notifier_ptr_t> notifiers_t;
+		typedef std::unordered_set<smart_utils::notifier::pointer_t> notifiers_t;
 		notifiers_t notifiers_;
 
 		///
-		typedef std::vector<smart_utils::notifier_ptr_t> tmp_notifiers_t;
+		typedef std::vector<smart_utils::notifier::pointer_t> tmp_notifiers_t;
 		std::mutex tmp_notifier_add_mtx_;
 		tmp_notifiers_t tmp_add_notifiers_;
 		std::mutex tmp_notifier_remove_mtx_;
@@ -188,7 +203,6 @@ namespace smart_utils
 
 		///
 		int32_t epfd_;
-
 	};
 
 } /* namespace NSSmartUtils */

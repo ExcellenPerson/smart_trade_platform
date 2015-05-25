@@ -17,7 +17,7 @@ using namespace std;
 #include <utils/notifiers.h>
 #include <utils/singleton.h>
 
-class CMyEvent: public ns_smart_utils::event_base
+class CMyEvent: public smart_utils::event_base
 {
 public:
 	void on_added(bool b)
@@ -39,10 +39,10 @@ public:
 
 std::shared_ptr<CMyEvent> ptr11;
 
-class CMyTimerHandler: public ns_smart_utils::timer_base
+class CMyTimerHandler: public smart_utils::timer_base
 {
 public:
-	CMyTimerHandler(const ns_smart_utils::timer_base::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
+	CMyTimerHandler(const smart_utils::timer_base::ETimerType timer_type, int64_t interval_seconds, int64_t interval_nanos)
 			: timer_base(timer_type, interval_seconds, interval_nanos)
 	{
 	}
@@ -70,7 +70,7 @@ public:
 
 };
 
-ns_smart_utils::notifier_engine tms;
+smart_utils::notifier_engine tms;
 
 void f()
 {
@@ -80,7 +80,7 @@ void f()
 	}
 }
 
-class CMySignalHandler: public ns_smart_utils::signal_base
+class CMySignalHandler: public smart_utils::signal_base
 {
 public:
 	CMySignalHandler(std::vector<int32_t> & vec)
@@ -108,21 +108,21 @@ public:
 
 int main()
 {
-	ns_smart_utils::singleton<int>::get_inst() = 12345;
-	std::cout << "value: " << ns_smart_utils::singleton<int>::get_inst() << std::endl;
+	smart_utils::singleton<int>::get_inst() = 12345;
+	std::cout << "value: " << smart_utils::singleton<int>::get_inst() << std::endl;
 
-	std::shared_ptr < ns_smart_utils::timer_base > ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::timer_base::ETimerType::ETT_REALTIME, 1, 1);
+	std::shared_ptr < smart_utils::timer_base > ptr = std::make_shared < CMyTimerHandler > (smart_utils::timer_base::ETimerType::ETT_REALTIME, 1, 1);
 	ptr->open();
 	tms.open();
 
-	ns_smart_utils::notifier_ptr_t p = static_pointer_cast<ns_smart_utils::notifier, ns_smart_utils::timer_base>(ptr);
+	smart_utils::notifier::pointer_t p = static_pointer_cast<smart_utils::notifier, smart_utils::timer_base>(ptr);
 	tms.async_add_notifier(p);
 
 	//std::thread t(f);
 
 	///test signal
 	std::vector<int32_t> vec = {SIGINT, SIGQUIT};
-	ns_smart_utils::notifier_ptr_t pSignal = std::make_shared < CMySignalHandler > (vec);
+	smart_utils::notifier::pointer_t pSignal = std::make_shared < CMySignalHandler > (vec);
 	pSignal->open();
 	tms.async_add_notifier(pSignal);
 
@@ -130,7 +130,7 @@ int main()
 
 	ptr11 = std::make_shared<CMyEvent>();
 	ptr11->open();
-	ns_smart_utils::notifier_ptr_t ppp = static_pointer_cast<ns_smart_utils::notifier, ns_smart_utils::event_base>(ptr11);
+	smart_utils::notifier::pointer_t ppp = static_pointer_cast<smart_utils::notifier, smart_utils::event_base>(ptr11);
 	tms.async_add_notifier(ppp);
 
 	ptr = nullptr;
@@ -139,19 +139,19 @@ int main()
 
 	//std::this_thread::sleep_for(10s);
 
-	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::timer_base::ETimerType::ETT_MONOTONIC, 2, 1);
+	ptr = std::make_shared < CMyTimerHandler > (smart_utils::timer_base::ETimerType::ETT_MONOTONIC, 2, 1);
 
-	p = static_pointer_cast<ns_smart_utils::notifier, ns_smart_utils::timer_base>(ptr);
+	p = static_pointer_cast<smart_utils::notifier, smart_utils::timer_base>(ptr);
 	ptr->open();
 	tms.async_add_notifier(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::timer_base::ETimerType::ETT_REALTIME, 3, 1);
-	p = static_pointer_cast<ns_smart_utils::notifier, ns_smart_utils::timer_base>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (smart_utils::timer_base::ETimerType::ETT_REALTIME, 3, 1);
+	p = static_pointer_cast<smart_utils::notifier, smart_utils::timer_base>(ptr);
 	ptr->open();
 	tms.async_add_notifier(p);
 
-	ptr = std::make_shared < CMyTimerHandler > (ns_smart_utils::timer_base::ETimerType::ETT_MONOTONIC, 5, 1);
-	p = static_pointer_cast<ns_smart_utils::notifier, ns_smart_utils::timer_base>(ptr);
+	ptr = std::make_shared < CMyTimerHandler > (smart_utils::timer_base::ETimerType::ETT_MONOTONIC, 5, 1);
+	p = static_pointer_cast<smart_utils::notifier, smart_utils::timer_base>(ptr);
 	ptr->open();
 	tms.async_add_notifier(p);
 
