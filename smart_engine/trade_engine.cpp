@@ -10,6 +10,7 @@
 
 namespace smart_engine
 {
+	using namespace smart_utils;
 
 	trade_engine::trade_engine()
 	{
@@ -23,6 +24,7 @@ namespace smart_engine
 
 	int32_t trade_kernel::run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt)
 	{
+		return EC_SUC;
 	}
 
 } /* namespace smart_engine */

@@ -9,6 +9,8 @@
 #ifndef TRADE_ENGINE_H_
 #define TRADE_ENGINE_H_
 
+#include <base/base.h>
+
 namespace smart_engine
 {
 	enum trade_direction
@@ -21,7 +23,7 @@ namespace smart_engine
 	class trade_kernel
 	{
 	public:
-		int32_t run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt)
+		int32_t run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt);
 
 	};
 
