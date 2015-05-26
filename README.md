@@ -7,6 +7,8 @@
 
 开发环境：本项目用eclipse-cdt开发，打开Eclipse-cdt后直接import进去即可，很方便：）。
 
+编译环境：可以直接在eclipse中编译，也可以用cmake/make编译。
+
 
 run test...
 

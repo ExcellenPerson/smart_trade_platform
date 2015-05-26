@@ -55,8 +55,8 @@ namespace ns_smart_net
 		iovec_t& get_data();
 
 	private:
-		smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t output_ringbuf_;
-		smart_utils::lock_free_ringbuf<iovec_t>::shared_ptr_t input_ringbuf_;
+		smart_utils::lock_free_ringbuf<iovec_t>::pointer_t output_ringbuf_;
+		smart_utils::lock_free_ringbuf<iovec_t>::pointer_t input_ringbuf_;
 	};
 
 } /* namespace NSSmartNet */
