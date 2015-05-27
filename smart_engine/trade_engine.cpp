@@ -22,7 +22,7 @@ namespace smart_engine
 		// TODO Auto-generated destructor stub
 	}
 
-	int32_t trade_kernel::run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt)
+	int32_t trade_kernel::handle(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt)
 	{
 		return EC_SUC;
 	}

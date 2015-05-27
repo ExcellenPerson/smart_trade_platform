@@ -23,7 +23,7 @@ namespace smart_engine
 	class trade_kernel
 	{
 	public:
-		int32_t run_trade(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt);
+		int32_t handle(uint32_t trade_id, trade_direction td, uint64_t trade_price, uint32_t trade_cnt);
 
 	};
 
