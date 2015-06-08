@@ -28,6 +28,8 @@ Test project /home/rock/git/STP/CMakeBuild/STPTest
 
 coding style: follow c++ std library
 
+author: TheRockLiuHY(rockjohnson@163.com).
+
 
 
 
