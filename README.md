@@ -29,7 +29,7 @@ Test project /home/rock/git/STP/CMakeBuild/STPTest
 coding style: follow c++ std library
 
 author: TheRockLiuHY(rockjohnson@163.com).
-注意：部分代码暂时不能开源，所以近期更新会比较慢。
+注意：特殊原因，该项目闭源开发。
 
 
 
